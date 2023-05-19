@@ -1,10 +1,25 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
-import 'package:esc_pos_bluetooth/esc_pos_bluetooth.dart';
+import 'package:blue_print_pos/blue_print_pos.dart';
+import 'package:blue_print_pos/models/blue_device.dart';
+import 'package:blue_print_pos/models/connection_status.dart';
+import 'package:blue_print_pos/receipt/receipt_section_text.dart';
+import 'package:blue_print_pos/receipt/receipt_text_size_type.dart';
+import 'package:blue_print_pos/receipt/receipt_text_style_type.dart';
+import 'package:chai/helpers/utilities.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' as RB;
 import '../../widgets/constraints.dart';
 import '../../widgets/responsive.dart';
 import '../apicalls/restapi.dart';
+import '../printer.dart';
+import '../utils/print_util.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -54,6 +69,16 @@ class HomePageBody extends StatefulWidget {
 }
 
 class _HomePageBodyState extends State<HomePageBody> {
+  final BluePrintPos _bluePrintPos = BluePrintPos.instance;
+  List<BlueDevice> _blueDevices = <BlueDevice>[];
+  BlueDevice? _selectedDevice;
+  bool _isLoading = false;
+  int _loadingAtIndex = -1;
+  final flutterReactiveBle = RB.FlutterReactiveBle();
+  RB.DiscoveredDevice? deviceChipseaBle;
+  String mButtonText = "Connect Chipsea-BLE";
+  String mWeighingReading = "---";
+  String mUnit = "no";
   List itemsList = [];
   List subitemsList = [];
   bool ispage1visible = true,
@@ -72,25 +97,154 @@ class _HomePageBodyState extends State<HomePageBody> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // Future<void> _onScanPressed() async {
+  //   if (Platform.isAndroid) {
+  //     Map<Permission, PermissionStatus> statuses = await [
+  //       Permission.bluetoothScan,
+  //       Permission.bluetoothConnect,
+  //     ].request();
+  //     if (statuses[Permission.bluetoothScan] != PermissionStatus.granted ||
+  //         statuses[Permission.bluetoothConnect] != PermissionStatus.granted) {
+  //       return;
+  //     }
+  //   }
+  //
+  //   setState(() => _isLoading = true);
+  //   _bluePrintPos.scan().then((List<BlueDevice> devices) {
+  //     if (devices.isNotEmpty) {
+  //       setState(() {
+  //         _blueDevices = devices;
+  //         _isLoading = false;
+  //       });
+  //     } else {
+  //       setState(() => _isLoading = false);
+  //     }
+  //   });
+  // }
+  //
+  // void _onDisconnectDevice() {
+  //   _bluePrintPos.disconnect().then((ConnectionStatus status) {
+  //     if (status == ConnectionStatus.disconnect) {
+  //       setState(() {
+  //         _selectedDevice = null;
+  //       });
+  //     }
+  //   });
+  // }
+  //
+  // void _onSelectDevice(int index) {
+  //   setState(() {
+  //     _isLoading = true;
+  //     _loadingAtIndex = index;
+  //   });
+  //   final BlueDevice blueDevice = _blueDevices[index];
+  //   _bluePrintPos.connect(blueDevice).then((ConnectionStatus status) {
+  //     if (status == ConnectionStatus.connected) {
+  //       setState(() => _selectedDevice = blueDevice);
+  //     } else if (status == ConnectionStatus.timeout) {
+  //       _onDisconnectDevice();
+  //     } else {
+  //       if (kDebugMode) {
+  //         print('$runtimeType - something wrong');
+  //       }
+  //     }
+  //     setState(() => _isLoading = false);
+  //   });
+  // }
+
+  Future<void> _onPrintReceipt() async {
+    /// Example for Print Image
+    // final ByteData logoBytes = await rootBundle.load(
+    //   'assets/logo.jpg',
+    // );
+
+    /// Example for Print Text
+    final ReceiptSectionText receiptText = ReceiptSectionText();
+    // receiptText.addImage(
+    //   base64.encode(Uint8List.view(logoBytes.buffer)),
+    //   width: 300,
+    // );
+    receiptText.addSpacer();
+    receiptText.addText(
+      'EXCEED YOUR VISION',
+      size: ReceiptTextSizeType.medium,
+      style: ReceiptTextStyleType.bold,
+    );
+    receiptText.addText(
+      'MC Koo',
+      size: ReceiptTextSizeType.small,
+    );
+    receiptText.addSpacer(useDashed: true);
+    receiptText.addLeftRightText('Time', '04/06/22, 10:30');
+    receiptText.addSpacer(useDashed: true);
+    receiptText.addLeftRightText(
+      'Apple 4pcs',
+      '\$ 10.00',
+      leftStyle: ReceiptTextStyleType.normal,
+      rightStyle: ReceiptTextStyleType.bold,
+    );
+    receiptText.addSpacer(useDashed: true);
+    receiptText.addLeftRightText(
+      'TOTAL',
+      '\$ 10.00',
+      leftStyle: ReceiptTextStyleType.normal,
+      rightStyle: ReceiptTextStyleType.bold,
+    );
+    receiptText.addSpacer(useDashed: true);
+    receiptText.addLeftRightText(
+      'Payment',
+      'Cash',
+      leftStyle: ReceiptTextStyleType.normal,
+      rightStyle: ReceiptTextStyleType.normal,
+    );
+    receiptText.addSpacer(count: 2);
+
+    await _bluePrintPos.printReceiptText(receiptText);
+
+    /// Example for print QR
+    await _bluePrintPos.printQR('https://www.google.com/', size: 250);
+
+    /// Text after QR
+    final ReceiptSectionText receiptSecondText = ReceiptSectionText();
+    receiptSecondText.addText('Powered by Google',
+        size: ReceiptTextSizeType.small);
+    receiptSecondText.addSpacer();
+    await _bluePrintPos.printReceiptText(receiptSecondText, feedCount: 1);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: blackColor,
+          ),
+        ),
         backgroundColor: yellowColor,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: 40,
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width / 3.5,
+              width: 30,
               child: Text(
                 finalPrice.toString(),
                 style: TextStyle(
                     color: bordertextcolor,
-                    fontSize: 24,
+                    fontSize: headerSize,
                     fontWeight: FontWeight.bold),
               ),
+            ),
+            SizedBox(
+              width: 25,
             ),
             Container(
                 decoration:
@@ -112,7 +266,17 @@ class _HomePageBodyState extends State<HomePageBody> {
                 decoration:
                     BoxDecoration(border: Border.all(color: bordertextcolor)),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    setState(() {
+                      Utilities.orderDataList = [];
+                      Utilities.orderDataList = orderDetails;
+                      Utilities.finalPrice = finalPrice;
+                      print('Data->>>>$orderDetails');
+                      print('Data->>>>${Utilities.orderDataList}');
+                    });
+                    print('Data->>>>${Utilities.bthAddress}');
+                    PrintUtils().printData();
+                  },
                   child: Image.asset('assets/icons/printer_icon.png'),
                 )),
             SizedBox(
@@ -190,7 +354,9 @@ class _HomePageBodyState extends State<HomePageBody> {
               ),
               subitemsList.isEmpty
                   ? Container(
-                      margin: EdgeInsets.symmetric(horizontal: 80),
+                      margin: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width / 5,
+                      ),
                       alignment: Alignment.center,
                       child: Text(
                         "No Items Found",
@@ -233,18 +399,18 @@ class _HomePageBodyState extends State<HomePageBody> {
                                     // subitemsList[index]['image']
                                     Image.asset(
                                       'assets/images/default.jpg',
-                                      height: 100,
-                                      width: 100,
+                                      height: 85,
+                                      width: 85,
                                     ),
                                     SizedBox(
-                                      height: 8,
+                                      height: 5,
                                     ),
                                     Text(
                                       subitemsList[index]['title'].toString(),
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: bordertextcolor,
-                                          fontSize: textSize),
+                                          fontSize: 10),
                                     ),
                                   ],
                                 ),
@@ -279,7 +445,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                     height: 15,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 60),
+                    padding: EdgeInsets.only(left: 30, right: 30),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -359,7 +525,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                     height: 15,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 60),
+                    padding: EdgeInsets.only(left: 30, right: 30),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -388,7 +554,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                     height: 15,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 60),
+                    padding: EdgeInsets.only(left: 30, right: 30),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -423,7 +589,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                               }
                             });
                             // print(itemDetails);
-                            print(orderDetails);
+                            print("orderDetails--------->$orderDetails");
                             method();
                             Navigator.pop(context);
                           },
@@ -465,6 +631,8 @@ class _HomePageBodyState extends State<HomePageBody> {
       for (int i = 0; i < orderDetails.length; i++) {
         var singleObj = jsonDecode(orderDetails[i]);
         finalPrice = finalPrice + int.parse(singleObj['total_cost'].toString());
+        Utilities.finalPrice = finalPrice;
+        print("final Price---------->$finalPrice");
       }
     } else {
       finalPrice = 0;

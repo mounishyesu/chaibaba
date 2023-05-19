@@ -7,6 +7,7 @@ import '../../helpers/utilities.dart';
 import '../../widgets/constraints.dart';
 import '../apicalls/restapi.dart';
 import '../home/home.dart';
+import '../printer.dart';
 
 class LoginForm extends StatefulWidget {
   LoginForm({Key? key}) : super(key: key);
@@ -24,14 +25,14 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   void initState() {
-    if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android) {
       Utilities.requestPermission();
-    }
-    else if (defaultTargetPlatform == TargetPlatform.linux || defaultTargetPlatform == TargetPlatform.macOS || defaultTargetPlatform == TargetPlatform.windows) {
-    }
+    } else if (defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.windows) {}
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +41,16 @@ class _LoginFormState extends State<LoginForm> {
         children: [
           Container(
             alignment: Alignment.topCenter,
-            child: Image.network( Utilities.companyLogo.toString(),height: 300,width: 300,),
+            child: Image.network(
+              Utilities.companyLogo.toString(),
+              height: 300,
+              width: 300,
+            ),
           ),
           Container(
             decoration: BoxDecoration(
-                color: whiteColor, ),
+              color: whiteColor,
+            ),
             child: TextFormField(
               controller: userName,
               keyboardType: TextInputType.emailAddress,
@@ -65,7 +71,8 @@ class _LoginFormState extends State<LoginForm> {
             padding: EdgeInsets.symmetric(vertical: defaultPadding),
             child: Container(
               decoration: BoxDecoration(
-                  color: whiteColor,),
+                color: whiteColor,
+              ),
               child: TextFormField(
                 obscureText: !_showPassword,
                 controller: passWord,
@@ -106,7 +113,8 @@ class _LoginFormState extends State<LoginForm> {
                   // ),
                 ),
                 onPressed: () async {
-                  bool is_Online = await Utilities.CheckUserConnection() as bool;
+                  bool is_Online =
+                      await Utilities.CheckUserConnection() as bool;
                   print("is_Online");
                   print(is_Online);
                   print("is_Online");
@@ -114,11 +122,12 @@ class _LoginFormState extends State<LoginForm> {
                     Utilities.showAlert(context, 'Username Required');
                   } else if (passWord.text.isEmpty) {
                     Utilities.showAlert(context, 'Password Required');
-                  }else if (!is_Online) {
-                    Utilities.showAlert(context, 'Check Your Internet Connection');
-                  }
-                  else {
-                    loginApiCall(userName.text.toString(), passWord.text.toString());
+                  } else if (!is_Online) {
+                    Utilities.showAlert(
+                        context, 'Check Your Internet Connection');
+                  } else {
+                    loginApiCall(
+                        userName.text.toString(), passWord.text.toString());
                   }
                 },
                 child: Text(
@@ -134,11 +143,8 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  loginApiCall(userName,password) async {
-    Map<String, dynamic> formMap = {
-      "username":userName,
-      "password":password
-    };
+  loginApiCall(userName, password) async {
+    Map<String, dynamic> formMap = {"username": userName, "password": password};
     print(formMap);
     ApiService.post("app-login", formMap).then((success) {
       setState(() {
@@ -146,9 +152,9 @@ class _LoginFormState extends State<LoginForm> {
         print('data-------------------->>$data');
         print(data['status']);
         if (data['status'] == "success") {
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => HomePage()),
-                (Route<dynamic> route) => false);
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => PrintOrder()),
+              (Route<dynamic> route) => false);
         } else {
           Utilities.Snackbar(context, "Invalid Username/Password");
         }
@@ -156,4 +162,9 @@ class _LoginFormState extends State<LoginForm> {
     });
   }
 
+  //login response//
+
+  // {status: success, message: Successfully login., data: {userid: 4, username: dhanalakshmi, mobile: 9491771222, password: TVRJek5EVTI=, email: CB1@gmail.com, address: kkd, role_type: User, token: null, token_expire: null, status: 1, createdon: 0000-00-00 00:00:00, createdby: 0, updatedon: 10-06-2021, updatedby: 0}}
+
+//login response//
 }

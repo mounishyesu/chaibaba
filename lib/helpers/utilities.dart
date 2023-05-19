@@ -11,30 +11,13 @@ class Utilities {
   static String? companyLogo;
   static int filledQues = 0;
   static int countFilled = 0;
-  static List gopaCheckList = [];
-  static List gopaList = [];
-  static List annexureList = [];
-  static List gopaCheckObj = [];
-  static List gopaAttachmentList = [];
-  static List finalgopaCheckList = [];
-  static int gopaQueposition = 0;
-  static dynamic gopaDetails;
-  static dynamic annexureDetails;
-  static List draftList = [];
-  static dynamic gopaDraftDetails;
-  static dynamic crewAuditDetails;
-  static List cabincrewCheckList = [];
-  static List crewCheckList = [];
-  static dynamic draftByList;
   static bool isPermission = false;
-  static List annexureOverviewCheckList = [];
-  static List gopaOverviewCheckList = [];
-  static List gopaDraftOverviewCheckList = [];
-  static List checkListDisabledIdsList = [];
-  static List moDisabledIds = [];
-  static dynamic dynMenudata;
   static String dataState = "";
   static String? stationCode;
+  static int finalPrice = 0;
+  static var bthAddress;
+  static List orderDataList= [];
+
 
   static void Snackbar(BuildContext context, String text) {
     final snackBar = SnackBar(
