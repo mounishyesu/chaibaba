@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:chai/helpers/utilities.dart';
+import 'package:chai/views/printer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/constraints.dart';
 import '../apicalls/restapi.dart';
@@ -53,9 +55,9 @@ class _SplashScreenState extends State<SplashScreen>
   //     return true;
   //   }
   // }
-
+  //
   // void _navigateToHome() {
-  //   Timer(Duration(seconds: 3), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuditHome())));
+  //   Timer(Duration(seconds: 3), () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => PrintOrder())));
   //
   // }
   void _navigateToLogin() {

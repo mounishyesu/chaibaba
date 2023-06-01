@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/utilities.dart';
 import '../../widgets/constraints.dart';
 import '../apicalls/restapi.dart';
-import '../home/home.dart';
 import '../printer.dart';
 
 class LoginForm extends StatefulWidget {
@@ -148,10 +148,9 @@ class _LoginFormState extends State<LoginForm> {
     print(formMap);
     ApiService.post("app-login", formMap).then((success) {
       setState(() {
-        var data = jsonDecode(success.body); //store response as string
-        print('data-------------------->>$data');
-        print(data['status']);
-        if (data['status'] == "success") {
+        var response = jsonDecode(success.body); //store response as string
+        saveUserDetails(response);
+        if (response['status'] == "success") {
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => PrintOrder()),
               (Route<dynamic> route) => false);
@@ -160,6 +159,27 @@ class _LoginFormState extends State<LoginForm> {
         }
       });
     });
+  }
+
+
+  saveUserDetails(resposnse) async {
+    print("???????????????????????????");
+    print(resposnse);
+    print('---------------------');
+    print(resposnse['data']);
+    print("???????????????????????????");
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("userName", resposnse['data']["username"].toString());
+    prefs.setString("contactNo", resposnse['data']["mobile"].toString());
+    prefs.setString("userID", resposnse['data']["userid"].toString());
+    prefs.setString("emailID", resposnse['data']["email"].toString());
+    prefs.setString("Address", resposnse['data']["address"].toString());
+    prefs.setBool("isLogin", true);
+    print("user id");
+    print(prefs.getString('userID').toString());
+    print(resposnse['data']["userid"].toString());
+    print("user id");
   }
 
   //login response//

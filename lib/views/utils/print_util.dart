@@ -22,24 +22,27 @@ class PrintUtils {
     try {
       await checkBluetooth(connected: () async {
         List<Uint8List> imgList = [];
-         var spc = Spacer();
          List order = Utilities.orderDataList;
          print("order");
          print(order);
          // var order_at = DateTime.now();
-         var order_at = DateTime.now().toString();
+        DateTime currentDateTime = DateTime.now();
+        DateTime onlyDate = DateTime(currentDateTime.day, currentDateTime.month, currentDateTime.year ,currentDateTime.hour,currentDateTime.minute,);
+        print("onlyDate-------->$onlyDate");
+         var order_at = DateTime.now();
 
-        var printdata = "----------- CHAIBABA ----------\n\n";
-            printdata += "      ${order_at}        \n\n";
-            printdata += "item               Qty     Price \n\n";
+        var printdata = "----------- CHAIBABA -----------\n\n";
+            printdata += "      ${onlyDate}        \n\n";
+            printdata += "item                            Qty     Price \n\n";
         for(int i=0;i<order.length;i++){
           print('item_Name');
           var item = jsonDecode(order[i]);
-          var itemname = item['item_Name'].toString().substring(0,5);
-          printdata += "${itemname}               ${item['item_Qty'].toString()}       ${item['total_cost'].toString()} \n";
+          var itemname = item['item_Name'].toString();
+          printdata += "${itemname}                 ${item['item_Qty'].toString()}     ${item['total_cost'].toString()} \n";
         }
         printdata += "-------------------------------------------\n";
-        printdata += " Total                           : ${Utilities.finalPrice} \n\n";
+        printdata += " Total                           : ${Utilities.finalPrice} \n";
+        printdata += "------------------------------------------------\n";
         Uint8List imageInt = await getBillImage(printdata);
         im.Image? receiptImg = im.decodePng(imageInt);
 

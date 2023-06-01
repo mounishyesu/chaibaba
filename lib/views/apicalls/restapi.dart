@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class URLS {
-  static const String BASE_URL = 'https://smark.org.in/chaibaba/';
+  static const String BASE_URL = 'https://smark.org.in/chaibaba';
 }
 
 class ApiService {

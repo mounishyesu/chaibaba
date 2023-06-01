@@ -1,24 +1,18 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:blue_print_pos/blue_print_pos.dart';
-import 'package:blue_print_pos/models/blue_device.dart';
-import 'package:blue_print_pos/models/connection_status.dart';
 import 'package:blue_print_pos/receipt/receipt_section_text.dart';
 import 'package:blue_print_pos/receipt/receipt_text_size_type.dart';
 import 'package:blue_print_pos/receipt/receipt_text_style_type.dart';
 import 'package:chai/helpers/utilities.dart';
+import 'package:chai/views/history/orderhistory.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' as RB;
 import '../../widgets/constraints.dart';
 import '../../widgets/responsive.dart';
 import '../apicalls/restapi.dart';
-import '../printer.dart';
 import '../utils/print_util.dart';
 
 class HomePage extends StatefulWidget {
@@ -70,10 +64,6 @@ class HomePageBody extends StatefulWidget {
 
 class _HomePageBodyState extends State<HomePageBody> {
   final BluePrintPos _bluePrintPos = BluePrintPos.instance;
-  List<BlueDevice> _blueDevices = <BlueDevice>[];
-  BlueDevice? _selectedDevice;
-  bool _isLoading = false;
-  int _loadingAtIndex = -1;
   final flutterReactiveBle = RB.FlutterReactiveBle();
   RB.DiscoveredDevice? deviceChipseaBle;
   String mButtonText = "Connect Chipsea-BLE";
@@ -234,17 +224,20 @@ class _HomePageBodyState extends State<HomePageBody> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: 30,
+              width: 25,
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 4,
               child: Text(
                 finalPrice.toString(),
                 style: TextStyle(
                     color: bordertextcolor,
-                    fontSize: headerSize,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(
-              width: 25,
+              width: 20,
             ),
             Container(
                 decoration:
@@ -260,7 +253,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                   child: Image.asset('assets/icons/delete_icon.png'),
                 )),
             SizedBox(
-              width: 7,
+              width: 9,
             ),
             Container(
                 decoration:
@@ -280,34 +273,19 @@ class _HomePageBodyState extends State<HomePageBody> {
                   child: Image.asset('assets/icons/printer_icon.png'),
                 )),
             SizedBox(
-              width: 7,
+              width: 9,
             ),
             Container(
                 decoration:
                     BoxDecoration(border: Border.all(color: bordertextcolor)),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => OrderHistory()));
+                  },
                   child: Image.asset('assets/icons/history_icon.png'),
-                )),
-            SizedBox(
-              width: 7.8,
-            ),
-            Container(
-                width: 50,
-                height: 50,
-                // padding: EdgeInsets.only(bottom: 20),
-                decoration:
-                    BoxDecoration(border: Border.all(color: bordertextcolor)),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Text(
-                    'c',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: bordertextcolor,
-                        fontSize: 38,
-                        fontWeight: FontWeight.w300),
-                  ),
                 )),
           ],
         ),
@@ -441,8 +419,22 @@ class _HomePageBodyState extends State<HomePageBody> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Icon(
+                          Icons.close,
+                          color: yellowColor,
+                        ),
+                      ),
+                    ],
+                  ),
                   SizedBox(
-                    height: 15,
+                    height: 30,
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 30, right: 30),
@@ -556,61 +548,51 @@ class _HomePageBodyState extends State<HomePageBody> {
                   Padding(
                     padding: EdgeInsets.only(left: 30, right: 30),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: yellowColor,
-                            // shape: RoundedRectangleBorder(
-                            //   borderRadius: BorderRadius.circular(15),
-                            // ),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              itemDetails = [];
-                              itemDetails = jsonEncode({
-                                "item_ID": itemId,
-                                "item_Name": itemName,
-                                "item_Qty": item_Cost,
-                                "item_Price": itemCost,
-                                "total_cost": finalitem_Cost,
-                              });
+                        SizedBox(
+                          width: 100,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: yellowColor,
+                              // shape: RoundedRectangleBorder(
+                              //   borderRadius: BorderRadius.circular(15),
+                              // ),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                itemDetails = [];
+                                itemDetails = jsonEncode({
+                                  "item_ID": itemId,
+                                  "item_Name": itemName,
+                                  "item_Qty": item_Cost,
+                                  "item_Price": itemCost,
+                                  "total_cost": finalitem_Cost,
+                                });
 
-                              if (orderDetails.length > 0) {
-                                for (int i = 0; i < orderDetails.length; i++) {
-                                  var singleObj = jsonDecode(orderDetails[i]);
-                                  if (singleObj['item_ID'] == itemId) {
-                                    orderDetails.remove(orderDetails[i]);
+                                if (orderDetails.length > 0) {
+                                  for (int i = 0;
+                                      i < orderDetails.length;
+                                      i++) {
+                                    var singleObj = jsonDecode(orderDetails[i]);
+                                    if (singleObj['item_ID'] == itemId) {
+                                      orderDetails.remove(orderDetails[i]);
+                                    }
                                   }
+                                  orderDetails.add(itemDetails);
+                                } else {
+                                  orderDetails.add(itemDetails);
                                 }
-                                orderDetails.add(itemDetails);
-                              } else {
-                                orderDetails.add(itemDetails);
-                              }
-                            });
-                            // print(itemDetails);
-                            print("orderDetails--------->$orderDetails");
-                            method();
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            "Ok",
-                            style: TextStyle(color: whiteColor),
-                          ),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: yellowColor,
-                            // shape: RoundedRectangleBorder(
-                            //   borderRadius: BorderRadius.circular(15),
-                            // ),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            "Close",
-                            style: TextStyle(color: whiteColor),
+                              });
+                              // print(itemDetails);
+                              print("orderDetails--------->$orderDetails");
+                              method();
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Ok",
+                              style: TextStyle(color: whiteColor),
+                            ),
                           ),
                         ),
                       ],
