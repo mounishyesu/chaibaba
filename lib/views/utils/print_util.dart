@@ -31,18 +31,18 @@ class PrintUtils {
         print("onlyDate-------->$onlyDate");
          var order_at = DateTime.now();
 
-        var printdata = "----------- CHAIBABA -----------\n\n";
+        var printdata = "------------------------ CHAIBABA --------------------------\n\n";
             printdata += "      ${onlyDate}        \n\n";
-            printdata += "item                            Qty     Price \n\n";
+            printdata += "item                                            Qty       Price \n\n";
         for(int i=0;i<order.length;i++){
           print('item_Name');
           var item = jsonDecode(order[i]);
           var itemname = item['item_Name'].toString();
-          printdata += "${itemname}                 ${item['item_Qty'].toString()}     ${item['total_cost'].toString()} \n";
+          printdata += "${itemname}                        ${item['item_Qty'].toString()}     ${item['total_cost'].toString()} \n";
         }
-        printdata += "-------------------------------------------\n";
-        printdata += " Total                           : ${Utilities.finalPrice} \n";
-        printdata += "------------------------------------------------\n";
+        printdata += "---------------------------------------------------------------\n";
+        printdata += " Total                                                        : ${Utilities.finalPrice} \n";
+        printdata += "---------------------------------------------------------------\n";
         Uint8List imageInt = await getBillImage(printdata);
         im.Image? receiptImg = im.decodePng(imageInt);
 
@@ -64,7 +64,7 @@ class PrintUtils {
   }
 
   Future<Uint8List> getBillImage(String label,
-      {double fontSize = 26, FontWeight fontWeight = FontWeight.w500}) async {
+      {double fontSize = 18, FontWeight fontWeight = FontWeight.w500}) async {
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder);
 
@@ -89,7 +89,7 @@ class PrintUtils {
     );
     ticketNum
       ..layout(
-        maxWidth: 372,
+        maxWidth: 600,
       )
       ..paint(
         canvas,
