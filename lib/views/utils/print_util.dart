@@ -26,22 +26,28 @@ class PrintUtils {
          print("order");
          print(order);
          // var order_at = DateTime.now();
-        DateTime currentDateTime = DateTime.now();
-        DateTime onlyDate = DateTime(currentDateTime.day, currentDateTime.month, currentDateTime.year ,currentDateTime.hour,currentDateTime.minute,);
-        print("onlyDate-------->$onlyDate");
+        var currentDateTime = DateTime.now().toString().substring(0,16);
+        // DateTime onlyDate = DateTime(currentDateTime.day, currentDateTime.month, currentDateTime.year ,currentDateTime.hour,currentDateTime.minute,);
+        // print("onlyDate-------->$onlyDate");
          var order_at = DateTime.now();
-
+          var spaceBar = "                                 ";
+          var largespaceBar = "                      ";
         var printdata = "------------------------ CHAIBABA --------------------------\n\n";
-            printdata += "      ${onlyDate}        \n\n";
-            printdata += "item                                            Qty       Price \n\n";
+            printdata += "      ${currentDateTime}        \n\n";
+            printdata += "Item (Qty)                                                    Price \n\n";
         for(int i=0;i<order.length;i++){
           print('item_Name');
           var item = jsonDecode(order[i]);
           var itemname = item['item_Name'].toString();
-          printdata += "${itemname}                        ${item['item_Qty'].toString()}     ${item['total_cost'].toString()} \n";
+          if(itemname.toString().length < 8){
+            printdata += "${itemname}   (${item['item_Qty'].toString()})${spaceBar}            ${item['total_cost'].toString()} \n";
+          }else{
+            printdata += "${itemname}   (${item['item_Qty'].toString()}) ${largespaceBar}      ${item['total_cost'].toString()} \n";
+          }
+
         }
         printdata += "---------------------------------------------------------------\n";
-        printdata += " Total                                                        : ${Utilities.finalPrice} \n";
+        printdata += " Total                                                          : ${Utilities.finalPrice} \n";
         printdata += "---------------------------------------------------------------\n";
         Uint8List imageInt = await getBillImage(printdata);
         im.Image? receiptImg = im.decodePng(imageInt);
