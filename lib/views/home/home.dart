@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' as RB;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/constraints.dart';
 import '../../widgets/responsive.dart';
 import '../apicalls/restapi.dart';
@@ -260,15 +261,16 @@ class _HomePageBodyState extends State<HomePageBody> {
                     BoxDecoration(border: Border.all(color: bordertextcolor)),
                 child: GestureDetector(
                   onTap: () {
-                    setState(() {
-                      Utilities.orderDataList = [];
-                      Utilities.orderDataList = orderDetails;
-                      Utilities.finalPrice = finalPrice;
-                      print('Data->>>>$orderDetails');
-                      print('Data->>>>${Utilities.orderDataList}');
-                    });
-                    print('Data->>>>${Utilities.bthAddress}');
-                    PrintUtils().printData();
+                    // setState(() {
+                    //   Utilities.orderDataList = [];
+                    //   Utilities.orderDataList = orderDetails;
+                    //   Utilities.finalPrice = finalPrice;
+                    //   print('Data->>>>$orderDetails');
+                    //   print('Data->>>>${Utilities.orderDataList}');
+                    // });
+                    // print('Data->>>>${Utilities.bthAddress}');
+                    // PrintUtils().printData();
+                    createOrderApi();
                   },
                   child: Image.asset('assets/icons/printer_icon.png'),
                 )),
@@ -643,4 +645,32 @@ class _HomePageBodyState extends State<HomePageBody> {
       });
     });
   }
+
+  createOrderApi() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var body = jsonEncode(
+        {
+          "created_by":prefs.getString('userID').toString(),
+          "bill_id":"1",
+          "total_price":"200",
+          "items":[
+            {
+              "category_id": "2",
+              "product_id":"2",
+              "quantity" : "2",
+              "price":"100",
+              "totalprice":"200"
+            }
+          ]
+        }
+    );
+    print(body);
+    ApiService.post("app-create-order", body).then((success) {
+      setState(() {
+        var data = jsonDecode(success.body); //store response as string
+        print('data-------------------->>$data');
+      });
+    });
+  }
+
 }
