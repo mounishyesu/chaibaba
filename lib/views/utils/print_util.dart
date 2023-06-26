@@ -30,25 +30,29 @@ class PrintUtils {
         // DateTime onlyDate = DateTime(currentDateTime.day, currentDateTime.month, currentDateTime.year ,currentDateTime.hour,currentDateTime.minute,);
         // print("onlyDate-------->$onlyDate");
          var order_at = DateTime.now();
-          var spaceBar = "                                 ";
+          var spaceBar = "                                ";
           var largespaceBar = "                      ";
-        var printdata = "------------------------ CHAIBABA --------------------------\n\n";
-            printdata += "      ${currentDateTime}        \n\n";
-            printdata += "Item (Qty)                                                    Price \n\n";
+        var printdata = "------------------- CHAIBABA ----------------\n\n";
+            printdata += "B.No : ${Utilities.billNumber}      Date : ${currentDateTime}        \n";
+        printdata += "---------------------------------------------------------------\n\n";
+            printdata += "ITEM (QTY)  (PRICE)                 TOTAL \n";
+            printdata += "---------------------------------------------------------------\n";
         for(int i=0;i<order.length;i++){
           print('item_Name');
           var item = jsonDecode(order[i]);
           var itemname = item['item_Name'].toString();
-          if(itemname.toString().length < 8){
-            printdata += "${itemname}   (${item['item_Qty'].toString()})${spaceBar}            ${item['total_cost'].toString()} \n";
+          if(itemname.toString().length < 12){
+            printdata += "${itemname}   (${item['item_Qty'].toString()})  (${item['item_Price'].toString()})               ${item['total_cost'].toString()} \n";
           }else{
-            printdata += "${itemname}   (${item['item_Qty'].toString()}) ${largespaceBar}      ${item['total_cost'].toString()} \n";
+            printdata += "${itemname}   (${item['item_Qty'].toString()})  (${item['item_Price'].toString()})      ${item['total_cost'].toString()} \n";
           }
 
         }
         printdata += "---------------------------------------------------------------\n";
-        printdata += " Total                                                          : ${Utilities.finalPrice} \n";
+        printdata += "Total Amount                              : ${Utilities.finalPrice} \n";
         printdata += "---------------------------------------------------------------\n";
+        printdata += "                           * THANK YOU VISIT AGAIN *          \n";
+        printdata += "------------------------------------------------------------\n\n";
         Uint8List imageInt = await getBillImage(printdata);
         im.Image? receiptImg = im.decodePng(imageInt);
 
@@ -70,7 +74,7 @@ class PrintUtils {
   }
 
   Future<Uint8List> getBillImage(String label,
-      {double fontSize = 18, FontWeight fontWeight = FontWeight.w500}) async {
+      {double fontSize = 20, FontWeight fontWeight = FontWeight.w600}) async {
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder);
 
@@ -95,7 +99,7 @@ class PrintUtils {
     );
     ticketNum
       ..layout(
-        maxWidth: 600,
+        maxWidth: 800,
       )
       ..paint(
         canvas,

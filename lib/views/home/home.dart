@@ -225,10 +225,10 @@ class _HomePageBodyState extends State<HomePageBody> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: 25,
+              width: 10,
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width / 4,
+              width: MediaQuery.of(context).size.width / 5,
               child: Text(
                 finalPrice.toString(),
                 style: TextStyle(
@@ -261,16 +261,16 @@ class _HomePageBodyState extends State<HomePageBody> {
                     BoxDecoration(border: Border.all(color: bordertextcolor)),
                 child: GestureDetector(
                   onTap: () {
-                    // setState(() {
-                    //   Utilities.orderDataList = [];
-                    //   Utilities.orderDataList = orderDetails;
-                    //   Utilities.finalPrice = finalPrice;
-                    //   print('Data->>>>$orderDetails');
-                    //   print('Data->>>>${Utilities.orderDataList}');
-                    // });
-                    // print('Data->>>>${Utilities.bthAddress}');
-                    // PrintUtils().printData();
-                    createOrderApi();
+                    setState(() {
+                      Utilities.orderDataList = [];
+                      Utilities.orderDataList = orderDetails;
+                      Utilities.finalPrice = finalPrice;
+                      print('Data->>>>$orderDetails');
+                      print('Data->>>>${Utilities.orderDataList}');
+                    });
+                    print('Data->>>>${Utilities.bthAddress}');
+                    PrintUtils().printData();
+                    getHistoryApi();
                   },
                   child: Image.asset('assets/icons/printer_icon.png'),
                 )),
@@ -368,6 +368,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                     subitemsList[index]['unit_price'],
                                   ),
                                   subitemsList[index]['product_id'],
+                                  subitemsList[index]['category_id'],
                                 );
                               },
                               child: Container(
@@ -406,7 +407,7 @@ class _HomePageBodyState extends State<HomePageBody> {
   }
 
   void dialogWithStateManagement(BuildContext parentContext, String itemName,
-      int itemCost, String itemId) {
+      int itemCost, String itemId, String categoryId) {
     showDialog(
       context: parentContext,
       builder: (dialogContext) {
@@ -566,6 +567,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                 itemDetails = [];
                                 itemDetails = jsonEncode({
                                   "item_ID": itemId,
+                                  "category_Id": categoryId,
                                   "item_Name": itemName,
                                   "item_Qty": item_Cost,
                                   "item_Price": itemCost,
@@ -646,31 +648,67 @@ class _HomePageBodyState extends State<HomePageBody> {
     });
   }
 
-  createOrderApi() async {
+  getHistoryApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var body = jsonEncode(
-        {
-          "created_by":prefs.getString('userID').toString(),
-          "bill_id":"1",
-          "total_price":"200",
-          "items":[
-            {
-              "category_id": "2",
-              "product_id":"2",
-              "quantity" : "2",
-              "price":"100",
-              "totalprice":"200"
-            }
-          ]
-        }
-    );
+    var body = jsonEncode({"created_by": prefs.getString('userID').toString()});
     print(body);
-    ApiService.post("app-create-order", body).then((success) {
+    ApiService.post("app-orders-history", body).then((success) {
       setState(() {
         var data = jsonDecode(success.body); //store response as string
+        var orderHistory = data['Orders'];
         print('data-------------------->>$data');
+        print('orderHistory-------------------->>$orderHistory');
+        int billNo = 1;
+        if (orderHistory.length > 0) {
+
+            billNo = int.parse(orderHistory[0]['order_id']) + 1;
+
+          createOrderApi(billNo);
+        } else {
+          createOrderApi(billNo);
+        }
+        Utilities.billNumber= billNo;
+
       });
     });
   }
 
+  createOrderApi(billId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print("========================>>674========$billId");
+    print(orderDetails);
+    List itemDetails = [];
+    var orderItems = jsonDecode(orderDetails.toString());
+    if(orderItems.length>0){
+      for (var i = 0; i < orderItems.length; i++) {
+        var item = {
+          "category_id": orderItems[i]['category_Id'].toString(),
+          "product_id": orderItems[i]['item_ID'].toString(),
+          "quantity": orderItems[i]['item_Qty'].toString(),
+          "price": orderItems[i]['item_Price'].toString(),
+          "totalprice": orderItems[i]['total_cost'].toString(),
+        };
+        itemDetails.add(item);
+      }
+    }
+
+
+    print(Utilities.orderDataList);
+    var body = jsonEncode({
+      "created_by": prefs.getString('userID').toString(),
+      "bill_id": billId,
+      "total_price":finalPrice,
+      "items":itemDetails
+    });
+
+    print("itemDetails------");
+    print(body);
+
+    ApiService.post("app-create-order", body).then((success) {
+      setState(() {
+        var data = jsonDecode(success.body); //store response as string
+        // print('data-------------------->>$data');
+      });
+    });
+  }
 }

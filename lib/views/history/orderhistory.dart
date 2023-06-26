@@ -115,7 +115,7 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
                           child: Container(
                               margin: EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 10),
-                              child: Text(orderHistory[index]['bill_id'].toString(),
+                              child: Text("ORD000"+orderHistory[index]['bill_id'].toString(),
                                 style: TextStyle(color: blackColor),
                               ))),
                     ]),
@@ -133,7 +133,7 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
                               margin: EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 10),
                               child: Text(
-                                orderHistory[index]['bill_id'].toString(),
+                                orderHistory[index]['created_on'].toString(),
                                 style: TextStyle(color: blackColor),
                               ))),
                     ]),

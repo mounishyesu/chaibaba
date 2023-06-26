@@ -17,6 +17,7 @@ class Utilities {
   static int finalPrice = 0;
   static var bthAddress;
   static List orderDataList= [];
+  static var billNumber = 0;
 
 
   static void Snackbar(BuildContext context, String text) {
