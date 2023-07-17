@@ -72,6 +72,7 @@ class _HomePageBodyState extends State<HomePageBody> {
   String mUnit = "no";
   List itemsList = [];
   List subitemsList = [];
+  var productDetails;
   bool ispage1visible = true,
       ispage2visible = false,
       ispage3visible = false,
@@ -79,6 +80,8 @@ class _HomePageBodyState extends State<HomePageBody> {
   int finalPrice = 0;
   var itemDetails;
   List orderDetails = [];
+
+  TextEditingController productIdController = TextEditingController();
 
   @override
   void initState() {
@@ -261,16 +264,11 @@ class _HomePageBodyState extends State<HomePageBody> {
                     BoxDecoration(border: Border.all(color: bordertextcolor)),
                 child: GestureDetector(
                   onTap: () {
-                    setState(() {
-                      Utilities.orderDataList = [];
-                      Utilities.orderDataList = orderDetails;
-                      Utilities.finalPrice = finalPrice;
-                      print('Data->>>>$orderDetails');
-                      print('Data->>>>${Utilities.orderDataList}');
-                    });
-                    print('Data->>>>${Utilities.bthAddress}');
-                    PrintUtils().printData();
-                    getHistoryApi();
+                    printDialogue(context, "", 0, "", "");
+                    // Utilities.orderDataList = [];
+                    // Utilities.orderDataList = orderDetails;
+                    // Utilities.finalPrice = finalPrice;
+                    // PrintUtils().printTicket();
                   },
                   child: Image.asset('assets/icons/printer_icon.png'),
                 )),
@@ -292,123 +290,197 @@ class _HomePageBodyState extends State<HomePageBody> {
           ],
         ),
       ),
-      body: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          color: yellowColor,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width / 3.5,
-                child: ListView.builder(
-                    physics: const ScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: itemsList.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: EdgeInsets.all(5),
-                        height: 80,
+      body: SingleChildScrollView(
+        child: Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            color: yellowColor,
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 1.5,
+                        child: TextFormField(
+                          keyboardType: TextInputType.number,
+                          controller: productIdController,
+                          cursorColor: blackColor,
+                          style: TextStyle(
+                              color: blackColor, fontSize: headerSize),
+                          decoration: InputDecoration(
+                            fillColor: whiteColor.withOpacity(0.6),
+                            filled: true,
+                            contentPadding:
+                                EdgeInsets.only(left: 10, right: 10),
+                            hintText: "Search...",
+                            hintStyle:
+                                TextStyle(color: blackColor, fontSize: 16),
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: blackColor)),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: blackColor)),
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(color: blackColor)),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 45,
                         width: 100,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: yellowColor,
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(color: bordertextcolor),
-                            ),
+                            backgroundColor: blackColor,
+                            // shape: RoundedRectangleBorder(
+                            //   borderRadius: BorderRadius.circular(15),
+                            // ),
                           ),
                           onPressed: () {
-                            print(
-                                '------------------>>>${itemsList[index]['category_id']}');
-                            subCategoryApiCall(itemsList[index]['category_id']);
+                            print(productIdController.text);
+
+                            getProductDetails();
                           },
                           child: Text(
-                            itemsList[index]['title'].toString(),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: bordertextcolor, fontSize: headerSize),
+                            "Search",
+                            style: TextStyle(color: yellowColor),
                           ),
                         ),
-                      );
-                    }),
-              ),
-              subitemsList.isEmpty
-                  ? Container(
-                      margin: EdgeInsets.only(
-                        left: MediaQuery.of(context).size.width / 5,
                       ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        "No Items Found",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: bordertextcolor,
-                            fontSize: headerSize),
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.5,
-                        height: MediaQuery.of(context).size.height,
-                        child: GridView.builder(
-                          itemCount: subitemsList.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 4.0,
-                                  mainAxisSpacing: 10.0),
-                          itemBuilder: (BuildContext context, int index) {
-                            return GestureDetector(
-                              onTap: () {
-                                dialogWithStateManagement(
-                                  context,
-                                  subitemsList[index]['title'],
-                                  int.parse(
-                                    subitemsList[index]['unit_price'],
-                                  ),
-                                  subitemsList[index]['product_id'],
-                                  subitemsList[index]['category_id'],
-                                );
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: bordertextcolor)),
-                                child: Column(
-                                  children: [
-                                    // subitemsList[index]['image']
-                                    Image.asset(
-                                      'assets/images/default.jpg',
-                                      height: 85,
-                                      width: 85,
+                    ],
+                  ),
+                ),
+                SingleChildScrollView(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width / 3.5,
+                          child: ListView.builder(
+                              physics: const ScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: itemsList.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: EdgeInsets.all(5),
+                                  height: 80,
+                                  width: 100,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: yellowColor,
+                                      shape: RoundedRectangleBorder(
+                                        side:
+                                            BorderSide(color: bordertextcolor),
+                                      ),
                                     ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      subitemsList[index]['title'].toString(),
+                                    onPressed: () {
+                                      print(
+                                          '------------------>>>${itemsList[index]['category_id']}');
+                                      subCategoryApiCall(
+                                          itemsList[index]['category_id']);
+                                    },
+                                    child: Text(
+                                      itemsList[index]['title'].toString(),
+                                      textAlign: TextAlign.center,
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold,
                                           color: bordertextcolor,
-                                          fontSize: 10),
+                                          fontSize: headerSize),
                                     ),
-                                  ],
+                                  ),
+                                );
+                              }),
+                        ),
+                        subitemsList.isEmpty
+                            ? Container(
+                                margin: EdgeInsets.only(
+                                  left: MediaQuery.of(context).size.width / 5,
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "No Items Found",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: bordertextcolor,
+                                      fontSize: headerSize),
+                                ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width / 1.5,
+                                  height: MediaQuery.of(context).size.height,
+                                  child: GridView.builder(
+                                    physics: ScrollPhysics(),
+                                    itemCount: subitemsList.length,
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 2,
+                                            crossAxisSpacing: 4.0,
+                                            mainAxisSpacing: 10.0),
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          dialogWithStateManagement(
+                                            context,
+                                            subitemsList[index]['title'],
+                                            int.parse(
+                                              subitemsList[index]['unit_price'],
+                                            ),
+                                            subitemsList[index]['product_id'],
+                                            subitemsList[index]['category_id'],
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(5),
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: bordertextcolor)),
+                                          child: Column(
+                                            children: [
+                                              // subitemsList[index]['image']
+                                              Image.asset(
+                                                'assets/images/default.jpg',
+                                                height: 85,
+                                                width: 85,
+                                              ),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Text(
+                                                subitemsList[index]['title']
+                                                    .toString(),
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: bordertextcolor,
+                                                    fontSize: 10),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                      ],
                     ),
-            ],
-          )),
+                  ),
+                ),
+              ],
+            )),
+      ),
     );
   }
 
   void dialogWithStateManagement(BuildContext parentContext, String itemName,
       int itemCost, String itemId, String categoryId) {
     showDialog(
+      barrierDismissible: false,
       context: parentContext,
       builder: (dialogContext) {
         int item_Cost = 1;
@@ -423,8 +495,17 @@ class _HomePageBodyState extends State<HomePageBody> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Container(
+                        child: Text(
+                          itemName.toString(),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: yellowColor,
+                              fontSize: textSize),
+                        ),
+                      ),
                       GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
@@ -446,20 +527,16 @@ class _HomePageBodyState extends State<HomePageBody> {
                       children: [
                         Container(
                           child: Text(
-                            itemName.toString(),
+                            "Cost",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: yellowColor,
-                                fontSize: textSize),
+                                color: yellowColor, fontSize: textSize),
                           ),
                         ),
                         Container(
                           child: Text(
                             "${itemCost.toString()}/-",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: yellowColor,
-                                fontSize: textSize),
+                                color: yellowColor, fontSize: textSize),
                           ),
                         ),
                       ],
@@ -476,14 +553,14 @@ class _HomePageBodyState extends State<HomePageBody> {
                       style: TextStyle(color: yellowColor, fontSize: textSize),
                       decoration: InputDecoration(
                         hintText: "${item_Cost}",
-                        hintStyle:
-                            TextStyle(color: yellowColor, fontSize: textSize),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: yellowColor)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: yellowColor)),
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: yellowColor)),
+                        hintStyle: TextStyle(color: yellowColor, fontSize: 24),
+                        border: InputBorder.none,
+                        // enabledBorder: OutlineInputBorder(
+                        //     borderSide: BorderSide(color: yellowColor)),
+                        // focusedBorder: OutlineInputBorder(
+                        //     borderSide: BorderSide(color: yellowColor)),
+                        // border: OutlineInputBorder(
+                        //     borderSide: BorderSide(color: yellowColor)),
                         prefixIcon: IconButton(
                           enableFeedback: false,
                           onPressed: item_Cost == 1
@@ -497,7 +574,8 @@ class _HomePageBodyState extends State<HomePageBody> {
                                   });
                                 },
                           icon: Icon(
-                            Icons.remove,
+                            Icons.remove_circle_outline,
+                            size: 40,
                             color: item_Cost == 1 ? lightgrey : yellowColor,
                           ),
                         ),
@@ -509,7 +587,8 @@ class _HomePageBodyState extends State<HomePageBody> {
                             });
                           },
                           icon: Icon(
-                            Icons.add,
+                            Icons.add_box_outlined,
+                            size: 40,
                             color: yellowColor,
                           ),
                         ),
@@ -528,18 +607,14 @@ class _HomePageBodyState extends State<HomePageBody> {
                           child: Text(
                             "Total",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: yellowColor,
-                                fontSize: textSize),
+                                color: yellowColor, fontSize: textSize),
                           ),
                         ),
                         Container(
                           child: Text(
                             "${finalitem_Cost.toString()}/-",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: yellowColor,
-                                fontSize: textSize),
+                                color: yellowColor, fontSize: textSize),
                           ),
                         ),
                       ],
@@ -611,18 +686,336 @@ class _HomePageBodyState extends State<HomePageBody> {
     );
   }
 
+  void printDialogue(BuildContext parentContext, String itemName, int itemCost,
+      String itemId, String categoryId) {
+    showDialog(
+      barrierDismissible: false,
+      context: parentContext,
+      builder: (dialogContext) {
+        int item_Cost = 1;
+        int finalitem_Cost = itemCost;
+        var printOrderDetailsList = jsonDecode(orderDetails.toString());
+        print("printOrderDetailsList");
+        print(printOrderDetailsList);
+        print("printOrderDetailsList");
+        return StatefulBuilder(builder: (stfContext, stfSetState) {
+          return Dialog(
+            // The background color
+            backgroundColor: bordertextcolor,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          child: Text(
+                            "Order Details",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellowColor,
+                                fontSize: headerSize),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(
+                            Icons.close,
+                            color: yellowColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    SafeArea(
+                      bottom: true,
+                      child: ListView.builder(
+                          physics: const ScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: printOrderDetailsList.length,
+                          itemBuilder: (context, index) {
+                            var item_Qty =
+                                printOrderDetailsList[index]['item_Qty'];
+                            return Container(
+                              margin: EdgeInsets.all(2),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    child: Text(
+                                      printOrderDetailsList[index]['item_Name']
+                                          .toString(),
+                                      style: TextStyle(
+                                          color: whiteColor,
+                                          fontSize: textSize),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 130,
+                                    child: TextFormField(
+                                      readOnly: true,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: yellowColor,
+                                          fontSize: textSize),
+                                      decoration: InputDecoration(
+                                        hintText: item_Qty.toString(),
+                                        hintStyle: TextStyle(
+                                            color: yellowColor, fontSize: 18),
+                                        border: InputBorder.none,
+                                        // enabledBorder: OutlineInputBorder(
+                                        //     borderSide: BorderSide(color: yellowColor)),
+                                        // focusedBorder: OutlineInputBorder(
+                                        //     borderSide: BorderSide(color: yellowColor)),
+                                        // border: OutlineInputBorder(
+                                        //     borderSide: BorderSide(color: yellowColor)),
+                                        prefixIcon: IconButton(
+                                          iconSize: 35,
+                                          // enableFeedback: false,
+                                          onPressed: printOrderDetailsList[
+                                                      index]['item_Qty'] ==
+                                                  null
+                                              ? null
+                                              : () {
+                                                  stfSetState(() {
+                                                    if (printOrderDetailsList[
+                                                            index]['item_Qty'] >
+                                                        1) {
+                                                      printOrderDetailsList[
+                                                          index]['item_Qty']--;
+
+                                                      itemDetails = [];
+                                                      itemDetails = jsonEncode({
+                                                        "item_ID":
+                                                            printOrderDetailsList[
+                                                                    index]
+                                                                ['item_ID'],
+                                                        "category_Id":
+                                                            printOrderDetailsList[
+                                                                    index]
+                                                                ['category_Id'],
+                                                        "item_Name":
+                                                            printOrderDetailsList[
+                                                                    index]
+                                                                ['item_Name'],
+                                                        "item_Qty":
+                                                            printOrderDetailsList[
+                                                                    index]
+                                                                ['item_Qty'],
+                                                        "item_Price":
+                                                            printOrderDetailsList[
+                                                                    index]
+                                                                ['item_Price'],
+                                                        "total_cost":
+                                                            printOrderDetailsList[
+                                                                        index][
+                                                                    'item_Price'] *
+                                                                printOrderDetailsList[
+                                                                        index][
+                                                                    'item_Qty'],
+                                                      });
+
+                                                      if (orderDetails.length >
+                                                          0) {
+                                                        finalPrice = 0;
+                                                        for (int i = 0;
+                                                            i <
+                                                                orderDetails
+                                                                    .length;
+                                                            i++) {
+                                                          var singleObj =
+                                                              jsonDecode(
+                                                                  orderDetails[
+                                                                      i]);
+                                                          if (singleObj[
+                                                                  'item_ID'] ==
+                                                              printOrderDetailsList[
+                                                                      index]
+                                                                  ['item_ID']) {
+                                                            orderDetails.remove(
+                                                                orderDetails[
+                                                                    i]);
+                                                          }
+                                                        }
+                                                        orderDetails
+                                                            .add(itemDetails);
+                                                      } else {
+                                                        orderDetails
+                                                            .add(itemDetails);
+                                                      }
+                                                    }
+                                                  });
+                                                  method();
+                                                },
+                                          icon: Icon(
+                                            Icons.remove_circle_outline,
+                                            // size: 40,
+                                            color: item_Qty == null
+                                                ? lightgrey
+                                                : yellowColor,
+                                          ),
+                                        ),
+                                        suffixIcon: IconButton(
+                                          iconSize: 35,
+                                          onPressed: () {
+                                            stfSetState(() {
+                                              printOrderDetailsList[index]
+                                                  ['item_Qty']++;
+                                              // finalitem_Cost = itemCost * item_Cost;
+
+                                              itemDetails = [];
+                                              itemDetails = jsonEncode({
+                                                "item_ID":
+                                                    printOrderDetailsList[index]
+                                                        ['item_ID'],
+                                                "category_Id":
+                                                    printOrderDetailsList[index]
+                                                        ['category_Id'],
+                                                "item_Name":
+                                                    printOrderDetailsList[index]
+                                                        ['item_Name'],
+                                                "item_Qty":
+                                                    printOrderDetailsList[index]
+                                                        ['item_Qty'],
+                                                "item_Price":
+                                                    printOrderDetailsList[index]
+                                                        ['item_Price'],
+                                                "total_cost":
+                                                    printOrderDetailsList[index]
+                                                            ['item_Price'] *
+                                                        printOrderDetailsList[
+                                                            index]['item_Qty'],
+                                              });
+
+                                              if (orderDetails.length > 0) {
+                                                finalPrice = 0;
+                                                for (int i = 0;
+                                                    i < orderDetails.length;
+                                                    i++) {
+                                                  var singleObj = jsonDecode(
+                                                      orderDetails[i]);
+                                                  if (singleObj['item_ID'] ==
+                                                      printOrderDetailsList[
+                                                          index]['item_ID']) {
+                                                    orderDetails.remove(
+                                                        orderDetails[i]);
+                                                  }
+                                                }
+                                                orderDetails.add(itemDetails);
+                                              } else {
+                                                orderDetails.add(itemDetails);
+                                              }
+                                            });
+                                            method();
+                                          },
+                                          icon: Icon(
+                                            Icons.add_box_outlined,
+                                            // size: 40,
+                                            color: yellowColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    printOrderDetailsList.length > 0
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: 90,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: yellowColor,
+                                      // shape: RoundedRectangleBorder(
+                                      //   borderRadius: BorderRadius.circular(15),
+                                      // ),
+                                    ),
+                                    onPressed: () {
+                                      ///*********** Below code is to print the order ***************//
+
+                                      getHistoryApi();
+
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      "Print",
+                                      style: TextStyle(color: blackColor),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 90,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: yellowColor,
+                                      // shape: RoundedRectangleBorder(
+                                      //   borderRadius: BorderRadius.circular(15),
+                                      // ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      "Cancel",
+                                      style: TextStyle(color: blackColor),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(
+                            child: Text(
+                              "Cart is Empty",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: headerSize),
+                            ),
+                          ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
   method() {
-    if (orderDetails.length > 0) {
-      finalPrice = 0;
-      for (int i = 0; i < orderDetails.length; i++) {
-        var singleObj = jsonDecode(orderDetails[i]);
-        finalPrice = finalPrice + int.parse(singleObj['total_cost'].toString());
-        Utilities.finalPrice = finalPrice;
-        print("final Price---------->$finalPrice");
+    setState(() {
+      if (orderDetails.length > 0) {
+        finalPrice = 0;
+        for (int i = 0; i < orderDetails.length; i++) {
+          var singleObj = jsonDecode(orderDetails[i]);
+          finalPrice =
+              finalPrice + int.parse(singleObj['total_cost'].toString());
+          Utilities.finalPrice = finalPrice;
+          print("final Price---------->$finalPrice");
+        }
+      } else {
+        finalPrice = 0;
       }
-    } else {
-      finalPrice = 0;
-    }
+    });
   }
 
   makeCategoryApiCall() async {
@@ -648,6 +1041,35 @@ class _HomePageBodyState extends State<HomePageBody> {
     });
   }
 
+  getProductDetails() {
+    print(productIdController.text);
+    Map<String, dynamic> formMap = {
+      "product_id": productIdController.text.toString(),
+    };
+    // var formMap = jsonEncode({"product_id": productIdController.text.toString()});
+    ApiService.post("app-getidbasedproduct", formMap).then((success) {
+      setState(() {
+        var data = jsonDecode(success.body); //store response as string
+        productDetails = data['product'];
+        print("productDetails");
+        print(productDetails);
+        if (productDetails != null) {
+          dialogWithStateManagement(
+            context,
+            productDetails['title'],
+            int.parse(
+              productDetails['unit_price'],
+            ),
+            productDetails['product_id'],
+            productDetails['category_id'],
+          );
+        } else {
+          Utilities.showAlert(context, "No Product Found");
+        }
+      });
+    });
+  }
+
   getHistoryApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var body = jsonEncode({"created_by": prefs.getString('userID').toString()});
@@ -660,15 +1082,20 @@ class _HomePageBodyState extends State<HomePageBody> {
         print('orderHistory-------------------->>$orderHistory');
         int billNo = 1;
         if (orderHistory.length > 0) {
-
-            billNo = int.parse(orderHistory[0]['order_id']) + 1;
-
-          createOrderApi(billNo);
+          billNo = int.parse(orderHistory[0]['order_id']) + 1;
         } else {
-          createOrderApi(billNo);
+          billNo = 1;
         }
-        Utilities.billNumber= billNo;
 
+        Utilities.orderDataList = [];
+        Utilities.billNumber = billNo;
+        Utilities.orderDataList = orderDetails;
+        Utilities.finalPrice = finalPrice;
+        print('Data->>>>$orderDetails');
+        print('Data->>>>${Utilities.orderDataList}');
+        print('Data->>>>${Utilities.bthAddress}');
+        PrintUtils().printTicket();
+        createOrderApi(billNo);
       });
     });
   }
@@ -679,7 +1106,7 @@ class _HomePageBodyState extends State<HomePageBody> {
     print(orderDetails);
     List itemDetails = [];
     var orderItems = jsonDecode(orderDetails.toString());
-    if(orderItems.length>0){
+    if (orderItems.length > 0) {
       for (var i = 0; i < orderItems.length; i++) {
         var item = {
           "category_id": orderItems[i]['category_Id'].toString(),
@@ -692,13 +1119,12 @@ class _HomePageBodyState extends State<HomePageBody> {
       }
     }
 
-
     print(Utilities.orderDataList);
     var body = jsonEncode({
       "created_by": prefs.getString('userID').toString(),
       "bill_id": billId,
-      "total_price":finalPrice,
-      "items":itemDetails
+      "total_price": finalPrice,
+      "items": itemDetails
     });
 
     print("itemDetails------");

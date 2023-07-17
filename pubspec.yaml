@@ -47,6 +47,8 @@ dependencies:
   shared_preferences: ^2.1.1
   jiffy: ^6.1.0
   intl: ^0.18.1
+  bluetooth_thermal_printer: ^0.0.6
+  esc_pos_utils: ^1.1.0
 
 dev_dependencies:
   flutter_test:

@@ -18,6 +18,7 @@ class Utilities {
   static var bthAddress;
   static List orderDataList= [];
   static var billNumber = 0;
+  static bool isConnected = false;
 
 
   static void Snackbar(BuildContext context, String text) {

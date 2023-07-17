@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui';
+import 'package:bluetooth_thermal_printer/bluetooth_thermal_printer.dart';
 import 'package:chai/helpers/utilities.dart';
 import 'package:chai/views/utils/toast_util.dart';
+import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as im;
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
@@ -16,47 +18,172 @@ class PrintUtils {
   List<BluetoothDevice> _devices = [];
   BlueThermalPrinter bluetoothPrint = BlueThermalPrinter.instance;
 
+  Future<void> printTicket() async {
+    String? isConnected = Utilities.isConnected.toString();
+    if (isConnected == "true") {
+      List<int> bytes = await getTicket();
+      final result = await BluetoothThermalPrinter.writeBytes(bytes);
+      print("Print $result");
+    } else {
+      //Hadnle Not Connected Senario
+    }
+  }
+
+  Future<List<int>> getTicket() async {
+    List<int> bytes = [];
+    CapabilityProfile profile = await CapabilityProfile.load();
+    final generator = Generator(PaperSize.mm80, profile);
+    var currentDateTime = DateTime.now().toString().substring(0, 16);
+    bytes += generator.text("DFC Shop",
+        styles: PosStyles(
+          align: PosAlign.center,
+          height: PosTextSize.size2,
+          width: PosTextSize.size2,
+        ),
+        linesAfter: 1);
+
+    bytes += generator.text("KAKINADA, AP, INDIA",
+        styles: PosStyles(align: PosAlign.center));
+    bytes += generator.text('Bill No. : #000${Utilities.billNumber.toString()}',
+        styles: PosStyles(align: PosAlign.center));
+
+    bytes += generator.hr();
+    bytes += generator.row([
+      PosColumn(
+          text: 'No',
+          width: 1,
+          styles: PosStyles(align: PosAlign.left, bold: true)),
+      PosColumn(
+          text: 'Item',
+          width: 5,
+          styles: PosStyles(align: PosAlign.left, bold: true)),
+      PosColumn(
+          text: 'Price',
+          width: 2,
+          styles: PosStyles(align: PosAlign.center, bold: true)),
+      PosColumn(
+          text: 'Qty',
+          width: 2,
+          styles: PosStyles(align: PosAlign.center, bold: true)),
+      PosColumn(
+          text: 'Total',
+          width: 2,
+          styles: PosStyles(align: PosAlign.right, bold: true)),
+    ]);
+
+    print(Utilities.orderDataList);
+
+    // [{"item_ID":"4","category_Id":"9","item_Name":"DUM TEA","item_Qty":4,"item_Price":10,"total_cost":40}, {"item_ID":"7","category_Id":"9","item_Name":"JAGGERY TEA","item_Qty":3,"item_Price":15,"total_cost":45}]
+    List orderDataListData = Utilities.orderDataList;
+    for(int i=0;i<orderDataListData.length;i++){
+      var orderDataListDataObj = jsonDecode(orderDataListData[i]);
+      bytes += generator.row([
+        PosColumn(text: "${i + 1}", width: 1),
+        PosColumn(
+            text: orderDataListDataObj['item_Name'].toString(),
+            width: 5,
+            styles: PosStyles(
+              align: PosAlign.left,
+            )),
+        PosColumn(
+            text: orderDataListDataObj['item_Price'].toString(),
+            width: 2,
+            styles: PosStyles(
+              align: PosAlign.center,
+            )),
+        PosColumn(text: orderDataListDataObj['item_Qty'].toString(), width: 2, styles: PosStyles(align: PosAlign.center)),
+        PosColumn(text: orderDataListDataObj['total_cost'].toString(), width: 2, styles: PosStyles(align: PosAlign.center)),
+      ]);
+    }
+
+
+    bytes += generator.hr();
+
+    bytes += generator.row([
+      PosColumn(
+          text: 'TOTAL',
+          width: 4,
+          styles: PosStyles(
+            align: PosAlign.left,
+            height: PosTextSize.size2,
+            width: PosTextSize.size2,
+          )),
+      PosColumn(
+          text:"${Utilities.finalPrice.toString()}",
+          width: 8,
+          styles: PosStyles(
+            align: PosAlign.right,
+            height: PosTextSize.size2,
+            width: PosTextSize.size2,
+          )),
+    ]);
+
+    bytes += generator.hr(ch: '=', linesAfter: 1);
+
+    // ticket.feed(2);
+    bytes += generator.text('Thank you!',
+        styles: PosStyles(align: PosAlign.center, bold: true));
+
+    bytes += generator.text("$currentDateTime",
+        styles: PosStyles(align: PosAlign.center), linesAfter: 1);
+
+    bytes += generator.text(
+        'Note: Goods once sold will not be taken back or exchanged.',
+        styles: PosStyles(align: PosAlign.center, bold: false));
+    bytes += generator.cut();
+    return bytes;
+  }
+
   printData() async {
     print('order data');
     print(Utilities.orderDataList);
     try {
       await checkBluetooth(connected: () async {
         List<Uint8List> imgList = [];
-         List order = Utilities.orderDataList;
-         print("order");
-         print(order);
-         // var order_at = DateTime.now();
-        var currentDateTime = DateTime.now().toString().substring(0,16);
+        List order = Utilities.orderDataList;
+        print("order");
+        print(order);
+        // var order_at = DateTime.now();
+        var currentDateTime = DateTime.now().toString().substring(0, 16);
         // DateTime onlyDate = DateTime(currentDateTime.day, currentDateTime.month, currentDateTime.year ,currentDateTime.hour,currentDateTime.minute,);
         // print("onlyDate-------->$onlyDate");
-         var order_at = DateTime.now();
-          var spaceBar = "                                ";
-          var largespaceBar = "                      ";
-        var printdata = "------------------- CHAIBABA ----------------\n\n";
-            printdata += "B.No : ${Utilities.billNumber}      Date : ${currentDateTime}        \n";
-        printdata += "---------------------------------------------------------------\n\n";
-            printdata += "ITEM (QTY)  (PRICE)                 TOTAL \n";
-            printdata += "---------------------------------------------------------------\n";
-        for(int i=0;i<order.length;i++){
+        var order_at = DateTime.now();
+        var spaceBar = "                                ";
+        var largespaceBar = "                      ";
+        var printdata = "------------------- DFC DOSA ----------------\n\n";
+        printdata +=
+            "B.No : ${Utilities.billNumber}      Date : ${currentDateTime}        \n";
+        printdata +=
+            "---------------------------------------------------------------\n\n";
+        printdata += "ITEM (QTY)  (PRICE)                 TOTAL \n";
+        printdata +=
+            "---------------------------------------------------------------\n";
+        for (int i = 0; i < order.length; i++) {
           print('item_Name');
           var item = jsonDecode(order[i]);
           var itemname = item['item_Name'].toString();
-          if(itemname.toString().length < 12){
-            printdata += "${itemname}   (${item['item_Qty'].toString()})  (${item['item_Price'].toString()})               ${item['total_cost'].toString()} \n";
-          }else{
-            printdata += "${itemname}   (${item['item_Qty'].toString()})  (${item['item_Price'].toString()})      ${item['total_cost'].toString()} \n";
+          if (itemname.toString().length < 12) {
+            printdata +=
+                "${itemname}   (${item['item_Qty'].toString()})  (${item['item_Price'].toString()})               ${item['total_cost'].toString()} \n";
+          } else {
+            printdata +=
+                "${itemname}   (${item['item_Qty'].toString()})  (${item['item_Price'].toString()})      ${item['total_cost'].toString()} \n";
           }
-
         }
-        printdata += "---------------------------------------------------------------\n";
-        printdata += "Total Amount                              : ${Utilities.finalPrice} \n";
-        printdata += "---------------------------------------------------------------\n";
-        printdata += "                           * THANK YOU VISIT AGAIN *          \n";
-        printdata += "------------------------------------------------------------\n\n";
+        printdata +=
+            "---------------------------------------------------------------\n";
+        printdata +=
+            "Total Amount                              : ${Utilities.finalPrice} \n";
+        printdata +=
+            "---------------------------------------------------------------\n";
+        printdata +=
+            "                           * THANK YOU VISIT AGAIN *          \n";
+        printdata +=
+            "------------------------------------------------------------\n\n";
         Uint8List imageInt = await getBillImage(printdata);
         im.Image? receiptImg = im.decodePng(imageInt);
 
-        for (var i = 0; i <= receiptImg!.height; i += 200) {
+        for (var i = 0; i <= receiptImg!.height; i += 300) {
           im.Image cropedReceiptImg = im.copyCrop(receiptImg, 0, i, 470, 200);
           Uint8List bytes = im.encodePng(cropedReceiptImg) as Uint8List;
           imgList.add(bytes);
