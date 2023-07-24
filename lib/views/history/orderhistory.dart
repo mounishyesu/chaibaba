@@ -49,6 +49,7 @@ class OrderHistoryList extends StatefulWidget {
 class _OrderHistoryListState extends State<OrderHistoryList> {
   List orderHistory = [];
   final dateController = TextEditingController();
+  String? orderHistoryTotal = "0";
   @override
   void initState() {
     // TODO: implement initState
@@ -96,7 +97,10 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
                 height: 40,
                 // margin: EdgeInsets.all(10),
                 color: whiteColor.withOpacity(0.6),
-                child: Text(dateController.text.toString()),
+                child: Text(
+                  dateController.text.toString(),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
               trailing: SizedBox(
                 height: 40,
@@ -115,8 +119,29 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
                 ),
               ),
             ),
+            Container(
+              height: 50,
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              color: whiteColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Total Amount",
+                    style: TextStyle(
+                        color: blackColor, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "Rs. ${orderHistoryTotal}",
+                    style: TextStyle(
+                        color: blackColor, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.8,
+              height: MediaQuery.of(context).size.height * 0.72,
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -135,101 +160,106 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
                             ),
                           )
                         : SizedBox(
-                            child: ListView.builder(
-                                physics: ScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: orderHistory.length,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                    margin: EdgeInsets.all(20),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 10),
-                                    decoration: BoxDecoration(
-                                        color: Colors.black26,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                15)) /*border: Border.all(color: Colors.black26)*/),
-                                    child: Table(
-                                      children: [
-                                        TableRow(children: [
-                                          TableCell(
-                                              child: Container(
-                                                  margin: EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 10),
-                                                  child: Text(
-                                                    'Bill id',
-                                                    style: TextStyle(
-                                                        color: blackColor),
-                                                  ))),
-                                          TableCell(
-                                              child: Container(
-                                                  margin: EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 10),
-                                                  child: Text(
-                                                    "ORD000" +
-                                                        orderHistory[index]
-                                                                ['bill_id']
-                                                            .toString(),
-                                                    style: TextStyle(
-                                                        color: blackColor),
-                                                  ))),
-                                        ]),
-                                        TableRow(children: [
-                                          TableCell(
-                                              child: Container(
-                                                  margin: EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 10),
-                                                  child: Text(
-                                                    'Date & Time',
-                                                    style: TextStyle(
-                                                        color: blackColor),
-                                                  ))),
-                                          TableCell(
-                                              child: Container(
-                                                  margin: EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 10),
-                                                  child: Text(
-                                                    orderHistory[index]
-                                                            ['created_on']
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        color: blackColor),
-                                                  ))),
-                                        ]),
-                                        TableRow(children: [
-                                          TableCell(
-                                              child: Container(
-                                                  margin: EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 10),
-                                                  child: Text(
-                                                    'Total Price',
-                                                    style: TextStyle(
-                                                        color: blackColor),
-                                                  ))),
-                                          TableCell(
-                                              child: Container(
-                                                  margin: EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 10),
-                                                  child: Text(
-                                                    "Rs${
+                            child: SafeArea(
+                              bottom: true,
+                              child: ListView.builder(
+                                  physics: ScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: orderHistory.length,
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      margin: EdgeInsets.all(20),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 10),
+                                      decoration: BoxDecoration(
+                                          color: Colors.black26,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(
+                                                  15)) /*border: Border.all(color: Colors.black26)*/),
+                                      child: Table(
+                                        children: [
+                                          TableRow(children: [
+                                            TableCell(
+                                                child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10,
+                                                            horizontal: 10),
+                                                    child: Text(
+                                                      'Bill id',
+                                                      style: TextStyle(
+                                                          color: blackColor),
+                                                    ))),
+                                            TableCell(
+                                                child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10,
+                                                            horizontal: 10),
+                                                    child: Text(
+                                                      "ORD000" +
+                                                          orderHistory[index]
+                                                                  ['bill_id']
+                                                              .toString(),
+                                                      style: TextStyle(
+                                                          color: blackColor),
+                                                    ))),
+                                          ]),
+                                          TableRow(children: [
+                                            TableCell(
+                                                child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10,
+                                                            horizontal: 10),
+                                                    child: Text(
+                                                      'Date & Time',
+                                                      style: TextStyle(
+                                                          color: blackColor),
+                                                    ))),
+                                            TableCell(
+                                                child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10,
+                                                            horizontal: 10),
+                                                    child: Text(
                                                       orderHistory[index]
-                                                              ['total_price']
-                                                          .toString()
-                                                    }",
-                                                    style: TextStyle(
-                                                        color: blackColor),
-                                                  ))),
-                                        ]),
-                                      ],
-                                    ),
-                                  );
-                                }),
+                                                              ['created_on']
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          color: blackColor),
+                                                    ))),
+                                          ]),
+                                          TableRow(children: [
+                                            TableCell(
+                                                child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10,
+                                                            horizontal: 10),
+                                                    child: Text(
+                                                      'Total Price',
+                                                      style: TextStyle(
+                                                          color: blackColor),
+                                                    ))),
+                                            TableCell(
+                                                child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 10,
+                                                            horizontal: 10),
+                                                    child: Text(
+                                                      "Rs${orderHistory[index]['total_price'].toString()}",
+                                                      style: TextStyle(
+                                                          color: blackColor),
+                                                    ))),
+                                          ]),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                            ),
                           ),
                   ],
                 ),
@@ -245,7 +275,8 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
     DateTime? pickedDate = await showDatePicker(
         context: context,
         initialDate: DateTime.now(), //get today's date
-        firstDate: DateTime(2022), //DateTime.now() - not to allow to choose before today.
+        firstDate: DateTime(
+            2022), //DateTime.now() - not to allow to choose before today.
         lastDate: DateTime(2100));
     print(pickedDate);
     if (pickedDate != null) {
@@ -276,6 +307,10 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
       setState(() {
         var data = jsonDecode(success.body); //store response as string
         orderHistory = data['Orders'];
+        setState(() {
+          orderHistoryTotal = data['grand_total'].toString();
+        });
+
         print('data-------------------->>$data');
         print('orderHistory-------------------->>$orderHistory');
       });

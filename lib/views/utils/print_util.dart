@@ -34,11 +34,12 @@ class PrintUtils {
     CapabilityProfile profile = await CapabilityProfile.load();
     final generator = Generator(PaperSize.mm80, profile);
     var currentDateTime = DateTime.now().toString().substring(0, 16);
-    bytes += generator.text("DFC Shop",
+    bytes += generator.text("DFC SHOP",
         styles: PosStyles(
           align: PosAlign.center,
           height: PosTextSize.size2,
-          width: PosTextSize.size2,
+          width: PosTextSize.size5,
+          bold: true,
         ),
         linesAfter: 1);
 
@@ -56,7 +57,7 @@ class PrintUtils {
       PosColumn(
           text: 'Item',
           width: 5,
-          styles: PosStyles(align: PosAlign.left, bold: true)),
+          styles: PosStyles(align: PosAlign.left, bold: true,)),
       PosColumn(
           text: 'Price',
           width: 2,
@@ -66,7 +67,7 @@ class PrintUtils {
           width: 2,
           styles: PosStyles(align: PosAlign.center, bold: true)),
       PosColumn(
-          text: 'Total',
+          text: 'Amount',
           width: 2,
           styles: PosStyles(align: PosAlign.right, bold: true)),
     ]);
@@ -77,6 +78,7 @@ class PrintUtils {
     List orderDataListData = Utilities.orderDataList;
     for(int i=0;i<orderDataListData.length;i++){
       var orderDataListDataObj = jsonDecode(orderDataListData[i]);
+
       bytes += generator.row([
         PosColumn(text: "${i + 1}", width: 1),
         PosColumn(
@@ -121,15 +123,15 @@ class PrintUtils {
     bytes += generator.hr(ch: '=', linesAfter: 1);
 
     // ticket.feed(2);
-    bytes += generator.text('Thank you!',
+    bytes += generator.text('THANK YOU! VISIT US AGAIN',
         styles: PosStyles(align: PosAlign.center, bold: true));
 
     bytes += generator.text("$currentDateTime",
         styles: PosStyles(align: PosAlign.center), linesAfter: 1);
 
-    bytes += generator.text(
-        'Note: Goods once sold will not be taken back or exchanged.',
-        styles: PosStyles(align: PosAlign.center, bold: false));
+    // bytes += generator.text(
+    //     'Note: Goods once sold will not be taken back or exchanged.',
+    //     styles: PosStyles(align: PosAlign.center, bold: false));
     bytes += generator.cut();
     return bytes;
   }

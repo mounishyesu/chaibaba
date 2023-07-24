@@ -54,13 +54,112 @@ class _PrintOrderState extends State<PrintOrder> {
   Future<void> setConnect(String mac) async {
     final String? result = await BluetoothThermalPrinter.connect(mac);
     print("state conneected $result");
+    print(Utilities.isConnected);
     if (result == "true") {
       setState(() {
         connected = true;
         Utilities.isConnected = true;
         isCheck = mac;
+        printDialogue(context);
+
       });
     }
+  }
+  printDialogue(context) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(builder: (stfContext, stfSetState) {
+          return Dialog(
+            // The background color
+            backgroundColor: bordertextcolor,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding:
+                const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          child: Text(
+                            "Bluetooth",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellowColor,
+                                fontSize: headerSize),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(
+                            Icons.close,
+                            color: yellowColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      child: Text("Printer Connected Successfully",style: TextStyle(color: whiteColor,fontSize: textSize),),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Utilities.isConnected == true
+                        ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 90,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: yellowColor,
+                                // shape: RoundedRectangleBorder(
+                                //   borderRadius: BorderRadius.circular(15),
+                                // ),
+                              ),
+                              onPressed: () {
+                                ///*********** Below code is to print the order ***************//
+                                Navigator.pop(context);
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (context) => HomePage()),
+                                );
+                              },
+                              child: Text(
+                                "Next",
+                                style: TextStyle(color: blackColor),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                        : Container(
+                      child: Text(
+                        "Please connect to printer",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: headerSize),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+      },
+    );
   }
 
   @override
@@ -133,8 +232,11 @@ class _PrintOrderState extends State<PrintOrder> {
                       print(isMac);
                       setConnect(mac);
                     },
-                    title: Text('${availableBluetoothDevices[index]}'),
-                    subtitle: Text( "Click to connect"),
+                    title: Text('${availableBluetoothDevices[index]}',style: TextStyle(fontWeight: FontWeight.bold),),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text( "Click to connect",style: TextStyle(fontWeight: FontWeight.bold,)),
+                    ),
                   );
                 },
               ),

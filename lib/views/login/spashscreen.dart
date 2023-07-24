@@ -21,7 +21,6 @@ class _SplashScreenState extends State<SplashScreen>
   double opacityLevel = 1.0;
   String completeImage = "";
 
-
   void _changeOpacity() {
     setState(() => opacityLevel = opacityLevel == 0 ? 1.0 : 0.0);
   }
@@ -71,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          backgroundColor: bordertextcolor,
+      backgroundColor: yellowColor,
       body: Stack(
         alignment: Alignment.center,
         children: <Widget>[
@@ -82,14 +81,25 @@ class _SplashScreenState extends State<SplashScreen>
                 duration: Duration(seconds: 3),
                 child: Container(
                   decoration: BoxDecoration(
-                     /* color: yellowColor*/ borderRadius: BorderRadius.circular(15)),
+                      // color: yellowColor ,
+                      borderRadius: BorderRadius.circular(15)),
                   width: MediaQuery.of(context).size.width * 0.7,
                   height: MediaQuery.of(context).size.height * 0.4,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
-                      Image.asset('assets/images/chaibabalogo.png',height: 250,width: 250,),
+                      completeImage.toString().isNotEmpty
+                          ? Image.network(
+                              completeImage.toString(),
+                              height: 250,
+                              width: 250,
+                            )
+                          : Image.asset(
+                              "assets/images/dfclogo.png",
+                              height: 250,
+                              width: 250,
+                            ),
                     ],
                   ),
                 )),
@@ -98,6 +108,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     ));
   }
+
   settingsApicall() async {
     ApiService.get("app-settings").then((success) {
       setState(() {

@@ -750,12 +750,12 @@ class _HomePageBodyState extends State<HomePageBody> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
+                                    width:MediaQuery.of(context).size.width/3,
                                     child: Text(
                                       printOrderDetailsList[index]['item_Name']
                                           .toString(),
                                       style: TextStyle(
-                                          color: whiteColor,
-                                          fontSize: textSize),
+                                          color: whiteColor,),
                                     ),
                                   ),
                                   SizedBox(
