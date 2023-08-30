@@ -6,15 +6,14 @@ import 'package:blue_print_pos/receipt/receipt_text_size_type.dart';
 import 'package:blue_print_pos/receipt/receipt_text_style_type.dart';
 import 'package:chai/helpers/utilities.dart';
 import 'package:chai/views/history/orderhistory.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart' as RB;
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../widgets/constraints.dart';
 import '../../widgets/responsive.dart';
 import '../apicalls/restapi.dart';
-import '../utils/print_util.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -80,6 +79,7 @@ class _HomePageBodyState extends State<HomePageBody> {
   int finalPrice = 0;
   var itemDetails;
   List orderDetails = [];
+  static const methodChannel = const MethodChannel("print");
 
   TextEditingController productIdController = TextEditingController();
 
@@ -647,6 +647,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                   "item_Qty": item_Cost,
                                   "item_Price": itemCost,
                                   "total_cost": finalitem_Cost,
+                                  "bill_id": Utilities.billNumber
                                 });
 
                                 if (orderDetails.length > 0) {
@@ -750,12 +751,14 @@ class _HomePageBodyState extends State<HomePageBody> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
-                                    width:MediaQuery.of(context).size.width/3,
+                                    width:
+                                        MediaQuery.of(context).size.width / 3,
                                     child: Text(
                                       printOrderDetailsList[index]['item_Name']
                                           .toString(),
                                       style: TextStyle(
-                                          color: whiteColor,),
+                                        color: whiteColor,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(
@@ -810,6 +813,8 @@ class _HomePageBodyState extends State<HomePageBody> {
                                                             printOrderDetailsList[
                                                                     index]
                                                                 ['item_Qty'],
+                                                        "bill_id": Utilities
+                                                            .billNumber,
                                                         "item_Price":
                                                             printOrderDetailsList[
                                                                     index]
@@ -888,6 +893,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                                 "item_Price":
                                                     printOrderDetailsList[index]
                                                         ['item_Price'],
+                                                "bill_id": Utilities.billNumber,
                                                 "total_cost":
                                                     printOrderDetailsList[index]
                                                             ['item_Price'] *
@@ -948,10 +954,10 @@ class _HomePageBodyState extends State<HomePageBody> {
                                       //   borderRadius: BorderRadius.circular(15),
                                       // ),
                                     ),
-                                    onPressed: () {
+                                    onPressed: () async {
                                       ///*********** Below code is to print the order ***************//
 
-                                      getHistoryApi();
+                                      await getHistoryApi();
 
                                       Navigator.pop(context);
                                     },
@@ -1074,29 +1080,29 @@ class _HomePageBodyState extends State<HomePageBody> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var body = jsonEncode({"created_by": prefs.getString('userID').toString()});
     print(body);
-    ApiService.post("app-orders-history", body).then((success) {
-      setState(() {
-        var data = jsonDecode(success.body); //store response as string
-        var orderHistory = data['Orders'];
-        print('data-------------------->>$data');
-        print('orderHistory-------------------->>$orderHistory');
-        int billNo = 1;
-        if (orderHistory.length > 0) {
-          billNo = int.parse(orderHistory[0]['order_id']) + 1;
-        } else {
-          billNo = 1;
-        }
+    ApiService.post("app-orders-history", body).then((success) async {
+      var data = jsonDecode(success.body); //store response as string
+      var orderHistory = data['Orders'];
+      print('data-------------------->>$data');
+      print('orderHistory-------------------->>$orderHistory');
+      int billNo = 1;
+      if (orderHistory.length > 0) {
+        billNo = int.parse(orderHistory[0]['order_id']) + 1;
+      } else {
+        billNo = 1;
+      }
 
-        Utilities.orderDataList = [];
-        Utilities.billNumber = billNo;
-        Utilities.orderDataList = orderDetails;
-        Utilities.finalPrice = finalPrice;
-        print('Data->>>>$orderDetails');
-        print('Data->>>>${Utilities.orderDataList}');
-        print('Data->>>>${Utilities.bthAddress}');
-        PrintUtils().printTicket();
-        createOrderApi(billNo);
-      });
+      Utilities.orderDataList = [];
+      Utilities.billNumber = billNo;
+      Utilities.orderDataList = orderDetails;
+      Utilities.finalPrice = finalPrice;
+
+      print('Data->>>>$orderDetails');
+      print('Data->>>>${Utilities.orderDataList}');
+      print('Data->>>>${Utilities.bthAddress}');
+      await methodChannel
+          .invokeMethod("print", json.encode(orderDetails))
+          .then((value) => createOrderApi(Utilities.billNumber));
     });
   }
 
@@ -1132,7 +1138,8 @@ class _HomePageBodyState extends State<HomePageBody> {
 
     ApiService.post("app-create-order", body).then((success) {
       setState(() {
-        var data = jsonDecode(success.body); //store response as string
+        var data = jsonDecode(success.body);
+        Utilities.orderDataList = []; //store response as string
         // print('data-------------------->>$data');
       });
     });

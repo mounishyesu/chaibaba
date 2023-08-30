@@ -1,16 +1,16 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:ui';
+
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:bluetooth_thermal_printer/bluetooth_thermal_printer.dart';
 import 'package:chai/helpers/utilities.dart';
 import 'package:chai/views/utils/toast_util.dart';
-import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/foundation.dart';
-import 'package:image/image.dart' as im;
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
-import 'package:flutter_blue/flutter_blue.dart' as fb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_blue/flutter_blue.dart' as fb;
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:image/image.dart' as im;
 
 import '../db/print_database.dart';
 
@@ -55,49 +55,51 @@ class PrintUtils {
           width: 1,
           styles: PosStyles(align: PosAlign.left, bold: true)),
       PosColumn(
-          text: 'Item',
-          width: 5,
-          styles: PosStyles(align: PosAlign.left, bold: true,)),
+        text: 'Item',
+        width: 7,
+        styles: PosStyles(
+          align: PosAlign.left,
+          bold: true,
+        ),
+      ),
       PosColumn(
-          text: 'Price',
-          width: 2,
-          styles: PosStyles(align: PosAlign.center, bold: true)),
-      PosColumn(
-          text: 'Qty',
-          width: 2,
-          styles: PosStyles(align: PosAlign.center, bold: true)),
-      PosColumn(
-          text: 'Amount',
-          width: 2,
+          text: 'Price Qty Amt',
+          width: 4,
           styles: PosStyles(align: PosAlign.right, bold: true)),
+      // PosColumn(
+      //     text: 'Qty',
+      //     width: 2,
+      //     styles: PosStyles(align: PosAlign.center, bold: true)),
+      // PosColumn(
+      //     text: 'Amount',
+      //     width: 2,
+      //     styles: PosStyles(align: PosAlign.right, bold: true)),
     ]);
 
     print(Utilities.orderDataList);
 
     // [{"item_ID":"4","category_Id":"9","item_Name":"DUM TEA","item_Qty":4,"item_Price":10,"total_cost":40}, {"item_ID":"7","category_Id":"9","item_Name":"JAGGERY TEA","item_Qty":3,"item_Price":15,"total_cost":45}]
     List orderDataListData = Utilities.orderDataList;
-    for(int i=0;i<orderDataListData.length;i++){
+    for (int i = 0; i < orderDataListData.length; i++) {
       var orderDataListDataObj = jsonDecode(orderDataListData[i]);
 
       bytes += generator.row([
         PosColumn(text: "${i + 1}", width: 1),
         PosColumn(
-            text: orderDataListDataObj['item_Name'].toString(),
-            width: 5,
+            text: 'karam onion masala capsicum cheese\ndosa',
+            width: 7,
             styles: PosStyles(
               align: PosAlign.left,
             )),
         PosColumn(
-            text: orderDataListDataObj['item_Price'].toString(),
-            width: 2,
+            text:
+                '${orderDataListDataObj['item_Price']} * ${orderDataListDataObj['item_Qty']} = 1200',
+            width: 4,
             styles: PosStyles(
-              align: PosAlign.center,
+              align: PosAlign.right,
             )),
-        PosColumn(text: orderDataListDataObj['item_Qty'].toString(), width: 2, styles: PosStyles(align: PosAlign.center)),
-        PosColumn(text: orderDataListDataObj['total_cost'].toString(), width: 2, styles: PosStyles(align: PosAlign.center)),
       ]);
     }
-
 
     bytes += generator.hr();
 
@@ -111,7 +113,7 @@ class PrintUtils {
             width: PosTextSize.size2,
           )),
       PosColumn(
-          text:"${Utilities.finalPrice.toString()}",
+          text: "${Utilities.finalPrice.toString()}",
           width: 8,
           styles: PosStyles(
             align: PosAlign.right,
