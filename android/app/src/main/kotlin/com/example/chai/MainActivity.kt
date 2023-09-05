@@ -123,7 +123,7 @@ class MainActivity() : FlutterActivity() {
          iteratedData = iteratedData.plus(String.format("[L]<b>%s.%s</b>[R][R][R][R][R][R][R][R][R]<b>%s  *  %s  = %s<b>" + "\n\n",i+1,name,qty.toString(),price.toString(),total.toString()))
         }
         printer.setTextToPrint(
-            "[C][C]<font size='big'> <b>DFC SHOP<b></font>" +
+            "[C]<font size='big'> <b>DOSA FILLING CENTER<b></font>" +
                     "\n" + "\n" +
                     "[R][R]<font size='normal'>KAKINADA, AP,INDIA</font>" +
                     "\n" +
