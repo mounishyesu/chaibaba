@@ -212,41 +212,63 @@ class _HomePageBodyState extends State<HomePageBody> {
 
   @override
   Widget build(BuildContext context) {
+    methodChannel.setMethodCallHandler((call) async {
+      print(call.method);
+      switch (call.method) {
+        case 'error':
+          return print("Error from method call");
+        case 'home':
+          {
+            createOrderApi(Utilities.billNumber);
+          }
+          break;
+        default:
+          throw PlatformException(code: '1', message: 'Not Implemented');
+      }
+    });
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: blackColor,
-          ),
+        systemOverlayStyle: SystemUiOverlayStyle(
+          // Status bar color
+          statusBarColor: Colors.white30,
+
+          // Status bar brightness (optional)
+          statusBarIconBrightness: Brightness.dark, // For Android (dark icons)
+          statusBarBrightness: Brightness.light, // For iOS (dark icons)
         ),
-        backgroundColor: yellowColor,
+        shadowColor: Colors.white30,
+        backgroundColor: Colors.white,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(
-              width: 10,
+            Text(
+              'Total Amount : ',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
+            Text(
+              '₹ ${finalPrice.toString()}',
+              style: TextStyle(
+                  color: bordertextcolor,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold),
+            )
+          ],
+        ),
+      ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        color: Colors.white,
+        child: Column(
+          children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width / 5,
-              child: Text(
-                finalPrice.toString(),
-                style: TextStyle(
-                    color: bordertextcolor,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
-              ),
+              height: 24,
             ),
-            SizedBox(
-              width: 20,
-            ),
-            Container(
-                decoration:
-                    BoxDecoration(border: Border.all(color: bordertextcolor)),
-                child: GestureDetector(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
                   onTap: () {
                     setState(() {
                       orderDetails = [];
@@ -254,225 +276,129 @@ class _HomePageBodyState extends State<HomePageBody> {
                       finalPrice = 0;
                     });
                   },
-                  child: Image.asset('assets/icons/delete_icon.png'),
-                )),
-            SizedBox(
-              width: 9,
-            ),
-            Container(
-                decoration:
-                    BoxDecoration(border: Border.all(color: bordertextcolor)),
-                child: GestureDetector(
+                  child: Container(
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                ),
+                GestureDetector(
                   onTap: () {
                     printDialogue(context, "", 0, "", "");
-                    // Utilities.orderDataList = [];
-                    // Utilities.orderDataList = orderDetails;
-                    // Utilities.finalPrice = finalPrice;
-                    // PrintUtils().printTicket();
                   },
-                  child: Image.asset('assets/icons/printer_icon.png'),
-                )),
-            SizedBox(
-              width: 9,
-            ),
-            Container(
-                decoration:
-                    BoxDecoration(border: Border.all(color: bordertextcolor)),
-                child: GestureDetector(
+                  child: Container(
+                      height: 60,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        color: Color(0xff42f5da),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Icon(
+                        Icons.print,
+                        color: Colors.white,
+                        size: 32,
+                      )),
+                ),
+                GestureDetector(
                   onTap: () {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => OrderHistory()));
                   },
-                  child: Image.asset('assets/icons/history_icon.png'),
-                )),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            color: yellowColor,
-            child: Column(
-              children: [
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.5,
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          controller: productIdController,
-                          cursorColor: blackColor,
-                          style: TextStyle(
-                              color: blackColor, fontSize: headerSize),
-                          decoration: InputDecoration(
-                            fillColor: whiteColor.withOpacity(0.6),
-                            filled: true,
-                            contentPadding:
-                                EdgeInsets.only(left: 10, right: 10),
-                            hintText: "Search...",
-                            hintStyle:
-                                TextStyle(color: blackColor, fontSize: 16),
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: blackColor)),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: blackColor)),
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide(color: blackColor)),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 45,
-                        width: 100,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: blackColor,
-                            // shape: RoundedRectangleBorder(
-                            //   borderRadius: BorderRadius.circular(15),
-                            // ),
-                          ),
-                          onPressed: () {
-                            print(productIdController.text);
-
-                            getProductDetails();
-                          },
-                          child: Text(
-                            "Search",
-                            style: TextStyle(color: yellowColor),
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: Container(
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                        color: Color(0xff42c8f5),
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Icon(
+                      Icons.history,
+                      color: Colors.white,
+                      size: 32,
+                    ),
                   ),
-                ),
-                SingleChildScrollView(
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.8,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 3.5,
-                          child: ListView.builder(
-                              physics: const ScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: itemsList.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  margin: EdgeInsets.all(5),
-                                  height: 80,
-                                  width: 100,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: yellowColor,
-                                      shape: RoundedRectangleBorder(
-                                        side:
-                                            BorderSide(color: bordertextcolor),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      print(
-                                          '------------------>>>${itemsList[index]['category_id']}');
-                                      subCategoryApiCall(
-                                          itemsList[index]['category_id']);
-                                    },
-                                    child: Text(
-                                      itemsList[index]['title'].toString(),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: bordertextcolor,
-                                          fontSize: headerSize),
-                                    ),
-                                  ),
-                                );
-                              }),
-                        ),
-                        subitemsList.isEmpty
-                            ? Container(
-                                margin: EdgeInsets.only(
-                                  left: MediaQuery.of(context).size.width / 5,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "No Items Found",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: bordertextcolor,
-                                      fontSize: headerSize),
-                                ),
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width / 1.5,
-                                  height: MediaQuery.of(context).size.height,
-                                  child: GridView.builder(
-                                    physics: ScrollPhysics(),
-                                    itemCount: subitemsList.length,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 2,
-                                            crossAxisSpacing: 4.0,
-                                            mainAxisSpacing: 10.0),
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          dialogWithStateManagement(
-                                            context,
-                                            subitemsList[index]['title'],
-                                            int.parse(
-                                              subitemsList[index]['unit_price'],
-                                            ),
-                                            subitemsList[index]['product_id'],
-                                            subitemsList[index]['category_id'],
-                                          );
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(5),
-                                          decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: bordertextcolor)),
-                                          child: Column(
-                                            children: [
-                                              // subitemsList[index]['image']
-                                              Image.asset(
-                                                'assets/images/default.jpg',
-                                                height: 85,
-                                                width: 85,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                subitemsList[index]['title']
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: bordertextcolor,
-                                                    fontSize: 10),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                      ],
+                )
+              ],
+            ),
+            SizedBox(
+              height: 24,
+            ),
+            Container(
+              margin: EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 1.5,
+                    child: TextFormField(
+                      keyboardType: TextInputType.number,
+                      controller: productIdController,
+                      autofocus: false,
+                      cursorColor: blackColor,
+                      style: TextStyle(color: blackColor, fontSize: headerSize),
+                      decoration: InputDecoration(
+                        fillColor: whiteColor.withOpacity(0.6),
+                        filled: true,
+                        contentPadding: EdgeInsets.only(left: 10, right: 10),
+                        hintText: "Type product id....",
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: blackColor)),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: blackColor)),
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: blackColor)),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 45,
+                    width: 100,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: yellowColor,
+                        // shape: RoundedRectangleBorder(
+                        //   borderRadius: BorderRadius.circular(15),
+                        // ),
+                      ),
+                      onPressed: () {
+                        print(productIdController.text);
+
+                        getProductDetails();
+                      },
+                      child: Text(
+                        "Search",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                child: Center(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Image.network(
+                      Utilities.companyLogo.toString(),
+                      height: 300,
+                      width: 300,
                     ),
                   ),
                 ),
-              ],
-            )),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -498,12 +424,14 @@ class _HomePageBodyState extends State<HomePageBody> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        child: Text(
-                          itemName.toString(),
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: yellowColor,
-                              fontSize: textSize),
+                        child: Flexible(
+                          child: Text(
+                            itemName.toString(),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: yellowColor,
+                                fontSize: textSize),
+                          ),
                         ),
                       ),
                       GestureDetector(
@@ -697,7 +625,7 @@ class _HomePageBodyState extends State<HomePageBody> {
         int finalitem_Cost = itemCost;
         var printOrderDetailsList = jsonDecode(orderDetails.toString());
         print("printOrderDetailsList");
-        print(printOrderDetailsList);
+
         print("printOrderDetailsList");
         return StatefulBuilder(builder: (stfContext, stfSetState) {
           return Dialog(
@@ -752,7 +680,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                 children: [
                                   Container(
                                     width:
-                                        MediaQuery.of(context).size.width / 3,
+                                        MediaQuery.of(context).size.width / 3.5,
                                     child: Text(
                                       printOrderDetailsList[index]['item_Name']
                                           .toString(),
@@ -971,7 +899,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                   width: 90,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: yellowColor,
+                                      backgroundColor: Colors.grey,
                                       // shape: RoundedRectangleBorder(
                                       //   borderRadius: BorderRadius.circular(15),
                                       // ),
@@ -981,7 +909,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                     },
                                     child: Text(
                                       "Cancel",
-                                      style: TextStyle(color: blackColor),
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ),
@@ -1101,8 +1029,7 @@ class _HomePageBodyState extends State<HomePageBody> {
       print('Data->>>>${Utilities.orderDataList}');
       print('Data->>>>${Utilities.bthAddress}');
       await methodChannel
-          .invokeMethod("print", json.encode(orderDetails))
-          .then((value) => createOrderApi(Utilities.billNumber));
+          .invokeMethod("print", [json.encode(orderDetails), billNo]);
     });
   }
 
@@ -1139,7 +1066,11 @@ class _HomePageBodyState extends State<HomePageBody> {
     ApiService.post("app-create-order", body).then((success) {
       setState(() {
         var data = jsonDecode(success.body);
-        Utilities.orderDataList = []; //store response as string
+        setState(() {
+          orderDetails = [];
+          itemDetails = [];
+          finalPrice = 0;
+        }); //store response as string
         // print('data-------------------->>$data');
       });
     });

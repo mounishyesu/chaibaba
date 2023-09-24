@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:chai/views/home/home.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../helpers/utilities.dart';
 import '../../widgets/constraints.dart';
 import '../apicalls/restapi.dart';
-import '../printer.dart';
 
 class LoginForm extends StatefulWidget {
   LoginForm({Key? key}) : super(key: key);
@@ -58,11 +58,10 @@ class _LoginFormState extends State<LoginForm> {
               onSaved: (email) {},
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.only(top: 15),
-                border: InputBorder.none,
                 hintText: "Enter Username",
                 prefixIcon: Icon(
                   Icons.person,
-                  color: bordertextcolor,
+                  color: Colors.grey,
                 ),
               ),
             ),
@@ -79,11 +78,10 @@ class _LoginFormState extends State<LoginForm> {
                 textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.only(top: 15),
-                  border: InputBorder.none,
                   hintText: "Enter Password",
                   prefixIcon: Icon(
                     Icons.lock,
-                    color: bordertextcolor,
+                    color: Colors.grey,
                   ),
                   suffixIcon: GestureDetector(
                     onTap: () {
@@ -93,7 +91,7 @@ class _LoginFormState extends State<LoginForm> {
                     },
                     child: Icon(
                       _showPassword ? Icons.visibility : Icons.visibility_off,
-                      color: bordertextcolor,
+                      color: Colors.grey,
                     ),
                   ),
                 ),
@@ -107,7 +105,7 @@ class _LoginFormState extends State<LoginForm> {
               width: 150,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: bordertextcolor,
+                  backgroundColor: yellowColor,
                   // shape: RoundedRectangleBorder(
                   //   // borderRadius: BorderRadius.circular(15),
                   // ),
@@ -152,7 +150,7 @@ class _LoginFormState extends State<LoginForm> {
         saveUserDetails(response);
         if (response['status'] == "success") {
           Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => PrintOrder()),
+              MaterialPageRoute(builder: (context) => HomePage()),
               (Route<dynamic> route) => false);
         } else {
           Utilities.Snackbar(context, "Invalid Username/Password");
@@ -160,7 +158,6 @@ class _LoginFormState extends State<LoginForm> {
       });
     });
   }
-
 
   saveUserDetails(resposnse) async {
     print("???????????????????????????");

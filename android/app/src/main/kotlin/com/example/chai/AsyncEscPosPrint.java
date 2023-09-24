@@ -141,13 +141,17 @@ public abstract class AsyncEscPosPrint extends AsyncTask<AsyncEscPosPrinter, Int
         switch (result) {
             case AsyncEscPosPrint.FINISH_SUCCESS:
                 new AlertDialog.Builder(context)
-                        //ToDO navigation to homepage
+
                         .setTitle("Success")
                         .setCancelable(false)
                         .setPositiveButton("Printed", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
+                                Intent intent = new Intent(context,MainActivity.class);
+                                intent.putExtra("key","home");
+                                 MyClass.Companion.setStatus(1);
+                                context.startActivity(intent);
 
                             }
                         })

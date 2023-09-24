@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:chai/widgets/constraints.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -48,7 +49,8 @@ class OrderHistoryList extends StatefulWidget {
 
 class _OrderHistoryListState extends State<OrderHistoryList> {
   List orderHistory = [];
-  final dateController = TextEditingController();
+  final dateController =
+      TextEditingController(text: 'selected date appear here');
   String? orderHistoryTotal = "0";
   @override
   void initState() {
@@ -60,9 +62,18 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: yellowColor,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: yellowColor,
+        backgroundColor: Colors.white,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          // Status bar color
+          statusBarColor: Colors.white30,
+
+          // Status bar brightness (optional)
+          statusBarIconBrightness: Brightness.dark, // For Android (dark icons)
+          statusBarBrightness: Brightness.light, // For iOS (dark icons)
+        ),
+        shadowColor: Colors.white30,
         title: Text(
           "Order History",
           style: TextStyle(
@@ -82,6 +93,9 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(
+              height: 16,
+            ),
             ListTile(
               onTap: () {
                 print("tap---------------------->138");
@@ -90,10 +104,11 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
               leading: Icon(
                 Icons.calendar_month,
                 color: blackColor,
-                size: 40,
+                size: 32,
               ),
               title: Container(
                 alignment: Alignment.center,
+
                 height: 40,
                 // margin: EdgeInsets.all(10),
                 color: whiteColor.withOpacity(0.6),
@@ -107,22 +122,21 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
                 width: 100,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: blackColor,
+                    backgroundColor: yellowColor,
                   ),
                   onPressed: () {
                     getHistoryApi(dateController.text.toString());
                   },
                   child: Text(
                     "Search",
-                    style: TextStyle(color: yellowColor),
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
             ),
             Container(
               height: 50,
-              padding: EdgeInsets.all(10),
-              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
               color: whiteColor,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -130,12 +144,14 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
                   Text(
                     "Total Amount",
                     style: TextStyle(
-                        color: blackColor, fontWeight: FontWeight.bold),
+                        color: Colors.grey, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    "Rs. ${orderHistoryTotal}",
+                    "₹ ${orderHistoryTotal}",
                     style: TextStyle(
-                        color: blackColor, fontWeight: FontWeight.bold),
+                        fontSize: 24,
+                        color: blackColor,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -168,7 +184,8 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
                                   itemCount: orderHistory.length,
                                   itemBuilder: (context, index) {
                                     return Container(
-                                      margin: EdgeInsets.all(20),
+                                      margin: EdgeInsets.symmetric(
+                                          vertical: 8, horizontal: 24),
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 10, vertical: 10),
                                       decoration: BoxDecoration(
@@ -250,7 +267,7 @@ class _OrderHistoryListState extends State<OrderHistoryList> {
                                                             vertical: 10,
                                                             horizontal: 10),
                                                     child: Text(
-                                                      "Rs${orderHistory[index]['total_price'].toString()}",
+                                                      "₹ ${orderHistory[index]['total_price'].toString()}",
                                                       style: TextStyle(
                                                           color: blackColor),
                                                     ))),

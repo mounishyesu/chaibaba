@@ -5,11 +5,9 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.DeviceConnection
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothConnection
 import com.dantsu.escposprinter.exceptions.EscPosBarcodeException
@@ -27,26 +25,37 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDateTime
 import java.util.function.Consumer
-import kotlin.math.log
 
 class MainActivity() : FlutterActivity() {
     private var selectedDevice: BluetoothConnection? = null
     private var itemDataList : JSONArray? = null
+    private var billNo :  Int? =null
+    lateinit var engine : FlutterEngine
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
+        engine = flutterEngine
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler(
                 { call: MethodCall, result: MethodChannel.Result? ->
                     if ((call.method == "print")) {
-
-                        var s = call.arguments
-                       itemDataList = JSONArray(call.arguments as String)
-                        Log.d("data",s as String);
+                        val args = call.arguments as List<*>
+                        billNo = args[1] as Int
+                       itemDataList = JSONArray(args[0] as String)
                         browseBluetoothDevice()
                     }
                 })
     }
 
+    override fun onResume() {
+        super.onResume()
+        val myIntent = intent
+        val value = myIntent.getStringExtra("key")
+        if (MyClass.status == 1) {
+            MethodChannel(engine.getDartExecutor().getBinaryMessenger(),
+                CHANNEL).invokeMethod("home", "")
+        }
+    }
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -112,18 +121,33 @@ class MainActivity() : FlutterActivity() {
         {
             var data = itemDataList?.getString(i)
             var item = JSONObject(data)
-            var name = item?.get("item_Name")
+            var name = item?.get("item_Name") as String
+             var finalName = "";
+             if(name.length >20)
+             {
+                var nameList =  name.chunked(20)
+
+                 for (i in 0 until (nameList?.size ?:0))
+                 {
+                       finalName = finalName +  nameList[i] + "\n"
+                 }
+             }
+            else
+             {
+              finalName = name
+             }
+
             var qty = item?.getInt("item_Qty")
             var price = item?.getInt("item_Price")
             var total  = qty!! * price!!
-            billId = item.getString("bill_id")
+            billId = billNo.toString()
 
             ultimateTotal += total
 
-         iteratedData = iteratedData.plus(String.format("[L]<b>%s.%s</b>[R][R][R][R][R][R][R][R][R]<b>%s  *  %s  = %s<b>" + "\n\n",i+1,name,qty.toString(),price.toString(),total.toString()))
+         iteratedData = iteratedData.plus(String.format("[L]<b>%s.%s</b>[R][R][R][R][R][R][R][R][R]<b>%s  *  %s  = %s<b>" + "\n\n",i+1,finalName,price.toString(),qty.toString(),total.toString()))
         }
         printer.setTextToPrint(
-            "[C]<font size='big'> <b>DOSA FILLING CENTER<b></font>" +
+            "[C]<font size='big'>  <b>DOSA FILLING CENTER<b></font>" +
                     "\n" + "\n" +
                     "[R][R]<font size='normal'>KAKINADA, AP,INDIA</font>" +
                     "\n" +
@@ -148,5 +172,11 @@ class MainActivity() : FlutterActivity() {
     companion object {
         val CHANNEL = "print"
         val PERMISSION_BLUETOOTH = 1
+    }
+}
+
+class MyClass {
+   public companion object {
+        var status= 0
     }
 }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/constraints.dart';
-
 class Background extends StatelessWidget {
   final Widget child;
   Background({
@@ -18,7 +16,7 @@ class Background extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
-        color: yellowColor,
+        color: Colors.white,
         width: double.infinity,
         height: MediaQuery.of(context).size.height,
         child: Stack(
