@@ -49,7 +49,7 @@ dependencies:
   intl: ^0.18.1
   bluetooth_thermal_printer: ^0.0.6
   flutter_esc_pos_utils:
-
+  android_bluetooth_printer: ^0.1.5
 
 dev_dependencies:
   flutter_test:
