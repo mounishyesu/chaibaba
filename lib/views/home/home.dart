@@ -1,9 +1,6 @@
 import 'dart:convert';
 
 import 'package:blue_print_pos/blue_print_pos.dart';
-import 'package:blue_print_pos/receipt/receipt_section_text.dart';
-import 'package:blue_print_pos/receipt/receipt_text_size_type.dart';
-import 'package:blue_print_pos/receipt/receipt_text_style_type.dart';
 import 'package:chai/helpers/utilities.dart';
 import 'package:chai/views/history/orderhistory.dart';
 import 'package:flutter/material.dart';
@@ -85,7 +82,6 @@ class _HomePageBodyState extends State<HomePageBody> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     makeCategoryApiCall();
   }
@@ -93,121 +89,6 @@ class _HomePageBodyState extends State<HomePageBody> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  // Future<void> _onScanPressed() async {
-  //   if (Platform.isAndroid) {
-  //     Map<Permission, PermissionStatus> statuses = await [
-  //       Permission.bluetoothScan,
-  //       Permission.bluetoothConnect,
-  //     ].request();
-  //     if (statuses[Permission.bluetoothScan] != PermissionStatus.granted ||
-  //         statuses[Permission.bluetoothConnect] != PermissionStatus.granted) {
-  //       return;
-  //     }
-  //   }
-  //
-  //   setState(() => _isLoading = true);
-  //   _bluePrintPos.scan().then((List<BlueDevice> devices) {
-  //     if (devices.isNotEmpty) {
-  //       setState(() {
-  //         _blueDevices = devices;
-  //         _isLoading = false;
-  //       });
-  //     } else {
-  //       setState(() => _isLoading = false);
-  //     }
-  //   });
-  // }
-  //
-  // void _onDisconnectDevice() {
-  //   _bluePrintPos.disconnect().then((ConnectionStatus status) {
-  //     if (status == ConnectionStatus.disconnect) {
-  //       setState(() {
-  //         _selectedDevice = null;
-  //       });
-  //     }
-  //   });
-  // }
-  //
-  // void _onSelectDevice(int index) {
-  //   setState(() {
-  //     _isLoading = true;
-  //     _loadingAtIndex = index;
-  //   });
-  //   final BlueDevice blueDevice = _blueDevices[index];
-  //   _bluePrintPos.connect(blueDevice).then((ConnectionStatus status) {
-  //     if (status == ConnectionStatus.connected) {
-  //       setState(() => _selectedDevice = blueDevice);
-  //     } else if (status == ConnectionStatus.timeout) {
-  //       _onDisconnectDevice();
-  //     } else {
-  //       if (kDebugMode) {
-  //         print('$runtimeType - something wrong');
-  //       }
-  //     }
-  //     setState(() => _isLoading = false);
-  //   });
-  // }
-
-  Future<void> _onPrintReceipt() async {
-    /// Example for Print Image
-    // final ByteData logoBytes = await rootBundle.load(
-    //   'assets/logo.jpg',
-    // );
-
-    /// Example for Print Text
-    final ReceiptSectionText receiptText = ReceiptSectionText();
-    // receiptText.addImage(
-    //   base64.encode(Uint8List.view(logoBytes.buffer)),
-    //   width: 300,
-    // );
-    receiptText.addSpacer();
-    receiptText.addText(
-      'EXCEED YOUR VISION',
-      size: ReceiptTextSizeType.medium,
-      style: ReceiptTextStyleType.bold,
-    );
-    receiptText.addText(
-      'MC Koo',
-      size: ReceiptTextSizeType.small,
-    );
-    receiptText.addSpacer(useDashed: true);
-    receiptText.addLeftRightText('Time', '04/06/22, 10:30');
-    receiptText.addSpacer(useDashed: true);
-    receiptText.addLeftRightText(
-      'Apple 4pcs',
-      '\$ 10.00',
-      leftStyle: ReceiptTextStyleType.normal,
-      rightStyle: ReceiptTextStyleType.bold,
-    );
-    receiptText.addSpacer(useDashed: true);
-    receiptText.addLeftRightText(
-      'TOTAL',
-      '\$ 10.00',
-      leftStyle: ReceiptTextStyleType.normal,
-      rightStyle: ReceiptTextStyleType.bold,
-    );
-    receiptText.addSpacer(useDashed: true);
-    receiptText.addLeftRightText(
-      'Payment',
-      'Cash',
-      leftStyle: ReceiptTextStyleType.normal,
-      rightStyle: ReceiptTextStyleType.normal,
-    );
-    receiptText.addSpacer(count: 2);
-
-    await _bluePrintPos.printReceiptText(receiptText);
-
-    /// Example for print QR
-    await _bluePrintPos.printQR('https://www.google.com/', size: 250);
-
-    /// Text after QR
-    final ReceiptSectionText receiptSecondText = ReceiptSectionText();
-    receiptSecondText.addText('Powered by Google',
-        size: ReceiptTextSizeType.small);
-    receiptSecondText.addSpacer();
-    await _bluePrintPos.printReceiptText(receiptSecondText, feedCount: 1);
   }
 
   @override
@@ -595,6 +476,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                               // print(itemDetails);
                               print("orderDetails--------->$orderDetails");
                               method();
+                              productIdController.clear();
                               Navigator.pop(context);
                             },
                             child: Text(
@@ -634,7 +516,7 @@ class _HomePageBodyState extends State<HomePageBody> {
             child: SingleChildScrollView(
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
                 child: Column(
                   children: [
                     Row(
@@ -713,77 +595,94 @@ class _HomePageBodyState extends State<HomePageBody> {
                                           // enableFeedback: false,
                                           onPressed: printOrderDetailsList[
                                                       index]['item_Qty'] ==
-                                                  null
-                                              ? null
+                                                  1
+                                              ? () {
+                                                  stfSetState(() {
+                                                    for (int i = 0;
+                                                        i < orderDetails.length;
+                                                        i++) {
+                                                      var singleObj =
+                                                          jsonDecode(
+                                                              orderDetails[i]);
+                                                      if (singleObj[
+                                                              'item_ID'] ==
+                                                          printOrderDetailsList[
+                                                                  index]
+                                                              ['item_ID']) {
+                                                        orderDetails.remove(
+                                                            orderDetails[i]);
+                                                      }
+                                                    }
+                                                    method();
+
+                                                    printOrderDetailsList
+                                                        .removeAt(index);
+                                                  });
+                                                }
                                               : () {
                                                   stfSetState(() {
-                                                    if (printOrderDetailsList[
-                                                            index]['item_Qty'] >
-                                                        1) {
-                                                      printOrderDetailsList[
-                                                          index]['item_Qty']--;
+                                                    printOrderDetailsList[index]
+                                                        ['item_Qty']--;
 
-                                                      itemDetails = [];
-                                                      itemDetails = jsonEncode({
-                                                        "item_ID":
-                                                            printOrderDetailsList[
-                                                                    index]
-                                                                ['item_ID'],
-                                                        "category_Id":
-                                                            printOrderDetailsList[
-                                                                    index]
-                                                                ['category_Id'],
-                                                        "item_Name":
-                                                            printOrderDetailsList[
-                                                                    index]
-                                                                ['item_Name'],
-                                                        "item_Qty":
-                                                            printOrderDetailsList[
-                                                                    index]
-                                                                ['item_Qty'],
-                                                        "bill_id": Utilities
-                                                            .billNumber,
-                                                        "item_Price":
-                                                            printOrderDetailsList[
-                                                                    index]
-                                                                ['item_Price'],
-                                                        "total_cost":
-                                                            printOrderDetailsList[
-                                                                        index][
-                                                                    'item_Price'] *
-                                                                printOrderDetailsList[
-                                                                        index][
-                                                                    'item_Qty'],
-                                                      });
+                                                    itemDetails = [];
 
-                                                      if (orderDetails.length >
-                                                          0) {
-                                                        finalPrice = 0;
-                                                        for (int i = 0;
-                                                            i <
-                                                                orderDetails
-                                                                    .length;
-                                                            i++) {
-                                                          var singleObj =
-                                                              jsonDecode(
-                                                                  orderDetails[
-                                                                      i]);
-                                                          if (singleObj[
-                                                                  'item_ID'] ==
+                                                    itemDetails = jsonEncode({
+                                                      "item_ID":
+                                                          printOrderDetailsList[
+                                                              index]['item_ID'],
+                                                      "category_Id":
+                                                          printOrderDetailsList[
+                                                                  index]
+                                                              ['category_Id'],
+                                                      "item_Name":
+                                                          printOrderDetailsList[
+                                                                  index]
+                                                              ['item_Name'],
+                                                      "item_Qty":
+                                                          printOrderDetailsList[
+                                                                  index]
+                                                              ['item_Qty'],
+                                                      "bill_id":
+                                                          Utilities.billNumber,
+                                                      "item_Price":
+                                                          printOrderDetailsList[
+                                                                  index]
+                                                              ['item_Price'],
+                                                      "total_cost":
+                                                          printOrderDetailsList[
+                                                                      index][
+                                                                  'item_Price'] *
                                                               printOrderDetailsList[
                                                                       index]
-                                                                  ['item_ID']) {
-                                                            orderDetails.remove(
+                                                                  ['item_Qty'],
+                                                    });
+
+                                                    if (orderDetails.length >
+                                                        0) {
+                                                      finalPrice = 0;
+                                                      for (int i = 0;
+                                                          i <
+                                                              orderDetails
+                                                                  .length;
+                                                          i++) {
+                                                        var singleObj =
+                                                            jsonDecode(
                                                                 orderDetails[
                                                                     i]);
-                                                          }
+                                                        if (singleObj[
+                                                                'item_ID'] ==
+                                                            printOrderDetailsList[
+                                                                    index]
+                                                                ['item_ID']) {
+                                                          orderDetails.remove(
+                                                              orderDetails[i]);
                                                         }
-                                                        orderDetails
-                                                            .add(itemDetails);
-                                                      } else {
-                                                        orderDetails
-                                                            .add(itemDetails);
                                                       }
+                                                      orderDetails
+                                                          .add(itemDetails);
+                                                    } else {
+                                                      orderDetails
+                                                          .add(itemDetails);
                                                     }
                                                   });
                                                   method();
@@ -884,7 +783,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                     ),
                                     onPressed: () async {
                                       ///*********** Below code is to print the order ***************//
-
+                                      productIdController.clear();
                                       await getHistoryApi();
 
                                       Navigator.pop(context);
@@ -1017,7 +916,7 @@ class _HomePageBodyState extends State<HomePageBody> {
       if (orderHistory.length > 0) {
         billNo = int.parse(orderHistory[0]['order_id']) + 1;
       } else {
-        billNo = 1;
+        billNo = 100;
       }
 
       Utilities.orderDataList = [];
