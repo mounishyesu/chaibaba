@@ -66,6 +66,7 @@ class _HomePageBodyState extends State<HomePageBody> {
   String mButtonText = "Connect Chipsea-BLE";
   String mWeighingReading = "---";
   String mUnit = "no";
+  var initialValue = 100;
   List itemsList = [];
   List subitemsList = [];
   var productDetails;
@@ -161,7 +162,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                     height: 60,
                     width: 60,
                     decoration: BoxDecoration(
-                        color: Colors.red,
+                        color: yellowColor,
                         borderRadius: BorderRadius.circular(5)),
                     child: Icon(
                       Icons.delete,
@@ -178,7 +179,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                       height: 60,
                       width: 60,
                       decoration: BoxDecoration(
-                        color: Color(0xff42f5da),
+                        color: yellowColor,
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Icon(
@@ -198,7 +199,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                     height: 60,
                     width: 60,
                     decoration: BoxDecoration(
-                        color: Color(0xff42c8f5),
+                        color: yellowColor,
                         borderRadius: BorderRadius.circular(5)),
                     child: Icon(
                       Icons.history,
@@ -214,11 +215,10 @@ class _HomePageBodyState extends State<HomePageBody> {
             ),
             Container(
               margin: EdgeInsets.all(10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.5,
+                    width: MediaQuery.of(context).size.width,
                     child: TextFormField(
                       keyboardType: TextInputType.number,
                       controller: productIdController,
@@ -241,14 +241,17 @@ class _HomePageBodyState extends State<HomePageBody> {
                     ),
                   ),
                   SizedBox(
-                    height: 45,
-                    width: 100,
+                    height: 30,
+                  ),
+                  SizedBox(
+                    height: 48,
+                    width: 200,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: yellowColor,
-                        // shape: RoundedRectangleBorder(
-                        //   borderRadius: BorderRadius.circular(15),
-                        // ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                       ),
                       onPressed: () {
                         print(productIdController.text);
@@ -295,7 +298,7 @@ class _HomePageBodyState extends State<HomePageBody> {
         return StatefulBuilder(builder: (stfContext, stfSetState) {
           return Dialog(
             // The background color
-            backgroundColor: bordertextcolor,
+            backgroundColor: Colors.black,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
               child: Column(
@@ -309,9 +312,10 @@ class _HomePageBodyState extends State<HomePageBody> {
                           child: Text(
                             itemName.toString(),
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: yellowColor,
-                                fontSize: textSize),
+                              fontWeight: FontWeight.bold,
+                              color: yellowColor,
+                              fontSize: 24,
+                            ),
                           ),
                         ),
                       ),
@@ -344,8 +348,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                         Container(
                           child: Text(
                             "${itemCost.toString()}/-",
-                            style: TextStyle(
-                                color: yellowColor, fontSize: textSize),
+                            style: TextStyle(color: yellowColor, fontSize: 16),
                           ),
                         ),
                       ],
@@ -422,71 +425,61 @@ class _HomePageBodyState extends State<HomePageBody> {
                         Container(
                           child: Text(
                             "${finalitem_Cost.toString()}/-",
-                            style: TextStyle(
-                                color: yellowColor, fontSize: textSize),
+                            style: TextStyle(color: yellowColor, fontSize: 18),
                           ),
                         ),
                       ],
                     ),
                   ),
                   SizedBox(
-                    height: 15,
+                    height: 24,
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 30, right: 30),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: yellowColor,
-                              // shape: RoundedRectangleBorder(
-                              //   borderRadius: BorderRadius.circular(15),
-                              // ),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                itemDetails = [];
-                                itemDetails = jsonEncode({
-                                  "item_ID": itemId,
-                                  "category_Id": categoryId,
-                                  "item_Name": itemName,
-                                  "item_Qty": item_Cost,
-                                  "item_Price": itemCost,
-                                  "total_cost": finalitem_Cost,
-                                  "bill_id": Utilities.billNumber
-                                });
-
-                                if (orderDetails.length > 0) {
-                                  for (int i = 0;
-                                      i < orderDetails.length;
-                                      i++) {
-                                    var singleObj = jsonDecode(orderDetails[i]);
-                                    if (singleObj['item_ID'] == itemId) {
-                                      orderDetails.remove(orderDetails[i]);
-                                    }
-                                  }
-                                  orderDetails.add(itemDetails);
-                                } else {
-                                  orderDetails.add(itemDetails);
-                                }
-                              });
-                              // print(itemDetails);
-                              print("orderDetails--------->$orderDetails");
-                              method();
-                              productIdController.clear();
-                              Navigator.pop(context);
-                            },
-                            child: Text(
-                              "Ok",
-                              style: TextStyle(color: whiteColor),
-                            ),
-                          ),
-                        ),
-                      ],
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      fixedSize: Size.fromWidth(300),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                    onPressed: () {
+                      setState(() {
+                        itemDetails = [];
+                        itemDetails = jsonEncode({
+                          "item_ID": itemId,
+                          "category_Id": categoryId,
+                          "item_Name": itemName,
+                          "item_Qty": item_Cost,
+                          "item_Price": itemCost,
+                          "total_cost": finalitem_Cost,
+                          "bill_id": Utilities.billNumber
+                        });
+
+                        if (orderDetails.length > 0) {
+                          for (int i = 0; i < orderDetails.length; i++) {
+                            var singleObj = jsonDecode(orderDetails[i]);
+                            if (singleObj['item_ID'] == itemId) {
+                              orderDetails.remove(orderDetails[i]);
+                            }
+                          }
+                          orderDetails.add(itemDetails);
+                        } else {
+                          orderDetails.add(itemDetails);
+                        }
+                      });
+                      // print(itemDetails);
+                      print("orderDetails--------->$orderDetails");
+                      method();
+                      productIdController.clear();
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "OK",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 8,
                   ),
                 ],
               ),
@@ -512,7 +505,7 @@ class _HomePageBodyState extends State<HomePageBody> {
         return StatefulBuilder(builder: (stfContext, stfSetState) {
           return Dialog(
             // The background color
-            backgroundColor: bordertextcolor,
+            backgroundColor: Colors.black,
             child: SingleChildScrollView(
               child: Padding(
                 padding:
@@ -538,6 +531,8 @@ class _HomePageBodyState extends State<HomePageBody> {
                           child: Icon(
                             Icons.close,
                             color: yellowColor,
+                            weight: 2,
+                            size: 32,
                           ),
                         ),
                       ],
@@ -567,8 +562,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                       printOrderDetailsList[index]['item_Name']
                                           .toString(),
                                       style: TextStyle(
-                                        color: whiteColor,
-                                      ),
+                                          color: whiteColor, fontSize: 18),
                                     ),
                                   ),
                                   SizedBox(
@@ -764,56 +758,37 @@ class _HomePageBodyState extends State<HomePageBody> {
                           }),
                     ),
                     SizedBox(
-                      height: 10,
+                      height: 32,
                     ),
                     printOrderDetailsList.length > 0
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width: 90,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: yellowColor,
-                                      // shape: RoundedRectangleBorder(
-                                      //   borderRadius: BorderRadius.circular(15),
-                                      // ),
-                                    ),
-                                    onPressed: () async {
-                                      ///*********** Below code is to print the order ***************//
-                                      productIdController.clear();
-                                      await getHistoryApi();
+                        ? Column(
+                            children: [
+                              SizedBox(
+                                height: 8,
+                              ),
+                              SizedBox(
+                                width: 300,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: whiteColor,
+                                    // shape: RoundedRectangleBorder(
+                                    //   borderRadius: BorderRadius.circular(15),
+                                    // ),
+                                  ),
+                                  onPressed: () async {
+                                    ///*********** Below code is to print the order ***************//
+                                    productIdController.clear();
+                                    await getHistoryApi();
 
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text(
-                                      "Print",
-                                      style: TextStyle(color: blackColor),
-                                    ),
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    "Print",
+                                    style: TextStyle(color: Colors.black),
                                   ),
                                 ),
-                                SizedBox(
-                                  width: 90,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.grey,
-                                      // shape: RoundedRectangleBorder(
-                                      //   borderRadius: BorderRadius.circular(15),
-                                      // ),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text(
-                                      "Cancel",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           )
                         : Container(
                             child: Text(
@@ -912,23 +887,26 @@ class _HomePageBodyState extends State<HomePageBody> {
       var orderHistory = data['Orders'];
       print('data-------------------->>$data');
       print('orderHistory-------------------->>$orderHistory');
-      int billNo = 1;
-      if (orderHistory.length > 0) {
-        billNo = int.parse(orderHistory[0]['order_id']) + 1;
-      } else {
-        billNo = 100;
+
+      String billNo = '${DateTime.now().day}$initialValue';
+      var currentDate = prefs.getString('date');
+      var initialBill = prefs.getInt('bill') ?? 0;
+      if ((currentDate ?? '') == DateTime.now().toString().split(':').first) {
+        initialBill = initialBill + 1;
+        prefs.setInt('bill', initialBill);
+        billNo = '${DateTime.now().day}$initialBill';
       }
 
       Utilities.orderDataList = [];
-      Utilities.billNumber = billNo;
+      Utilities.billNumber = int.tryParse(billNo) ?? 0;
       Utilities.orderDataList = orderDetails;
       Utilities.finalPrice = finalPrice;
 
       print('Data->>>>$orderDetails');
       print('Data->>>>${Utilities.orderDataList}');
       print('Data->>>>${Utilities.bthAddress}');
-      await methodChannel
-          .invokeMethod("print", [json.encode(orderDetails), billNo]);
+      await methodChannel.invokeMethod(
+          "print", [json.encode(orderDetails), int.tryParse(billNo) ?? 0]);
     });
   }
 

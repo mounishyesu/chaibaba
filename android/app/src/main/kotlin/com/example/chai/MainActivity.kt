@@ -28,9 +28,9 @@ import java.util.function.Consumer
 
 class MainActivity() : FlutterActivity() {
     private var selectedDevice: BluetoothConnection? = null
-    private var itemDataList : JSONArray? = null
-    private var billNo :  Int? =null
-    lateinit var engine : FlutterEngine
+    private var itemDataList: JSONArray? = null
+    private var billNo: Int? = null
+    lateinit var engine: FlutterEngine
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
@@ -41,7 +41,7 @@ class MainActivity() : FlutterActivity() {
                     if ((call.method == "print")) {
                         val args = call.arguments as List<*>
                         billNo = args[1] as Int
-                       itemDataList = JSONArray(args[0] as String)
+                        itemDataList = JSONArray(args[0] as String)
                         browseBluetoothDevice()
                     }
                 })
@@ -56,6 +56,7 @@ class MainActivity() : FlutterActivity() {
                 CHANNEL).invokeMethod("home", "")
         }
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -92,20 +93,20 @@ class MainActivity() : FlutterActivity() {
         val deviceList = bluetoothAdapter.bondedDevices
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             deviceList.forEach(Consumer { bluetoothDevice: BluetoothDevice ->
-                if ((bluetoothDevice.getAddress() == "86:67:7A:B5:8F:82")) {
-                    selectedDevice = BluetoothConnection(bluetoothDevice)
-                    try {
-                        printBluetooth()
-                    } catch (e: EscPosConnectionException) {
-                        e.printStackTrace()
-                    } catch (e: EscPosEncodingException) {
-                        e.printStackTrace()
-                    } catch (e: EscPosBarcodeException) {
-                        e.printStackTrace()
-                    } catch (e: EscPosParserException) {
-                        e.printStackTrace()
-                    }
+
+                selectedDevice = BluetoothConnection(bluetoothDevice)
+                try {
+                    printBluetooth()
+                } catch (e: EscPosConnectionException) {
+                    e.printStackTrace()
+                } catch (e: EscPosEncodingException) {
+                    e.printStackTrace()
+                } catch (e: EscPosBarcodeException) {
+                    e.printStackTrace()
+                } catch (e: EscPosParserException) {
+                    e.printStackTrace()
                 }
+
             }
             )
         }
@@ -117,34 +118,35 @@ class MainActivity() : FlutterActivity() {
         var iteratedData = "";
         var ultimateTotal = 0
         var billId = ""
-        for (i in 0 until (itemDataList?.length() ?:0 ))
-        {
+        for (i in 0 until (itemDataList?.length() ?: 0)) {
             var data = itemDataList?.getString(i)
             var item = JSONObject(data)
             var name = item?.get("item_Name") as String
-             var finalName = "";
-             if(name.length >20)
-             {
-                var nameList =  name.chunked(20)
+            var finalName = "";
+            if (name.length > 20) {
+                var nameList = name.chunked(20)
 
-                 for (i in 0 until (nameList?.size ?:0))
-                 {
-                       finalName = finalName +  nameList[i] + "\n"
-                 }
-             }
-            else
-             {
-              finalName = name
-             }
+                for (i in 0 until (nameList?.size ?: 0)) {
+                    finalName = finalName + nameList[i] + "\n"
+                }
+            } else {
+                finalName = name
+            }
 
             var qty = item?.getInt("item_Qty")
             var price = item?.getInt("item_Price")
-            var total  = qty!! * price!!
+            var total = qty!! * price!!
             billId = billNo.toString()
 
             ultimateTotal += total
 
-         iteratedData = iteratedData.plus(String.format("[L]<b>%s.%s</b>[R][R][R][R][R][R][R][R][R]<b>%s  *  %s  = %s<b>" + "\n\n",i+1,finalName,price.toString(),qty.toString(),total.toString()))
+            iteratedData =
+                iteratedData.plus(String.format("[L]<b>%s.%s</b>[R][R][R][R][R][R][R][R][R]<b>%s  *  %s  = %s<b>" + "\n\n",
+                    i + 1,
+                    finalName,
+                    price.toString(),
+                    qty.toString(),
+                    total.toString()))
         }
         printer.setTextToPrint(
             "[C]<font size='big'>  <b>DOSA FILLING CENTER<b></font>" +
@@ -157,7 +159,7 @@ class MainActivity() : FlutterActivity() {
                     "\n" +
                     "[L]<b>SNO  ITEM</b>[R][R][R][R]<b>PRICE    QTY     AMT<b>" +
                     "\n\n" +
-                     iteratedData +
+                    iteratedData +
                     "[C]================================================" + "\n" +
                     "[L]<font size='big'>Total</font>" + "[R][R][R][R][R][R][R][R][R][R][R][R][R][R]<font size='big'><b>$ultimateTotal<b></font>" + '\n' +
                     "[C]================================================" +
@@ -176,7 +178,7 @@ class MainActivity() : FlutterActivity() {
 }
 
 class MyClass {
-   public companion object {
-        var status= 0
+    public companion object {
+        var status = 0
     }
 }

@@ -142,6 +142,15 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   loginApiCall(userName, password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var currentDate = prefs.getString('date');
+    if ((currentDate ?? '') != DateTime.now().toString().split(':').first) {
+      prefs.setString(
+        'date',
+        DateTime.now().toString().split(':').first,
+      );
+      prefs.setInt('bill', 100);
+    }
     Map<String, dynamic> formMap = {"username": userName, "password": password};
     print(formMap);
     ApiService.post("app-login", formMap).then((success) {
@@ -179,9 +188,9 @@ class _LoginFormState extends State<LoginForm> {
     print("user id");
   }
 
-  //login response//
+//login response//
 
-  // {status: success, message: Successfully login., data: {userid: 4, username: dhanalakshmi, mobile: 9491771222, password: TVRJek5EVTI=, email: CB1@gmail.com, address: kkd, role_type: User, token: null, token_expire: null, status: 1, createdon: 0000-00-00 00:00:00, createdby: 0, updatedon: 10-06-2021, updatedby: 0}}
+// {status: success, message: Successfully login., data: {userid: 4, username: dhanalakshmi, mobile: 9491771222, password: TVRJek5EVTI=, email: CB1@gmail.com, address: kkd, role_type: User, token: null, token_expire: null, status: 1, createdon: 0000-00-00 00:00:00, createdby: 0, updatedon: 10-06-2021, updatedby: 0}}
 
 //login response//
 }
